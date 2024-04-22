@@ -8,6 +8,7 @@
 #include <QDate>
 #include <QList>
 #include <QTime>
+#include <QImage>
 
 #include "DicomImage.hpp"
 #include "DicomMetaDataHashCollection.hpp"
@@ -61,6 +62,9 @@ namespace cadsi_lib::dicom {
         void setInstitutionName(QString&& institutionName);
         void setInstitutionName(const vtkDICOMValue& institutionName);
         void setInstitutionName(vtkDICOMValue&& institutionName);
+        [[nodiscard]] QImage getPreview() const;
+        void setPreview(const QImage& preview_image);
+        void setPreview(QImage&& preview_image);
         [[nodiscard]] QList<DicomImage> getImages() const;
         void assignImages(QList<DicomImage> images);
         void addImage(const DicomImage& image);
@@ -75,7 +79,7 @@ namespace cadsi_lib::dicom {
 
     private:
         QHash<vtkDICOMTag, vtkDICOMDataElement> _series_meta;
-        //TODO: maybe add preview array
+        QImage _preview_image;
         QList<DicomImage> _images;
     };
 }    //namespace cadsi_lib::dicom

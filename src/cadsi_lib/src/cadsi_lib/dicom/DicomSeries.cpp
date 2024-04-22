@@ -187,6 +187,18 @@ namespace cadsi_lib::dicom {
         setMeta(std::move(data_elem));
     }
 
+    QImage DicomSeries::getPreview() const {
+        return _preview_image;
+    }
+
+    void DicomSeries::setPreview(const QImage& preview_image) {
+        _preview_image = preview_image;
+    }
+
+    void DicomSeries::setPreview(QImage&& preview_image) {
+        _preview_image = preview_image;
+    }
+
     void DicomSeries::assignImages(QList<DicomImage> images) {
         _images.assign(images.begin(), images.end());
     }

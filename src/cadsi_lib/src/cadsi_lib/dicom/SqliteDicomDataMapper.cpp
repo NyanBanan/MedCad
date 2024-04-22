@@ -66,6 +66,7 @@ namespace cadsi_lib::dicom {
 
         QList<DicomSeries> series;
 
+        int preview_field_ind = series_query.record().indexOf("preview_picture");
         while (series_query.next()) {
             auto series_uid = series_query.value(0).value<uint>();
             auto slices_res = selectAllSlicesForSeries(conn, series_uid);
@@ -73,6 +74,7 @@ namespace cadsi_lib::dicom {
                 return {slices_res.status};
             }
             auto& curr_series = series.emplaceBack();
+            curr_series.setPreview(QImage::fromData(series_query.value(preview_field_ind).toByteArray(), "jpeg"));
 
             auto slices = slices_res.data;
 
@@ -248,6 +250,13 @@ namespace cadsi_lib::dicom {
             query.addBindValue(curr_series.getDescription());
             query.addBindValue(curr_series.getModality());
             query.addBindValue(curr_series.getInstitutionName());
+
+            QByteArray preview_array;
+            QBuffer buf(&preview_array);
+            buf.open(QIODevice::WriteOnly);
+            curr_series.getPreview().save(&buf, "jpg");
+
+            query.addBindValue(preview_array);
             query.addBindValue(patient_uid);
             if (!query.exec()) {
                 auto error = query.lastError();

@@ -4,8 +4,6 @@
 
 #include "cadsi_lib/dicom/providers/FileDataDicomProvider.hpp"
 
-#include "cadsi_lib/Result.hpp"
-
 namespace cadsi_lib::dicom::providers {
     Result<QList<DicomPatient>> FileDataDicomProvider::getAllPatients() {
         return {.status{.success = true}, .data = _patients};
@@ -58,10 +56,12 @@ namespace cadsi_lib::dicom::providers {
                         //Read metadata for series
                         vtkNew<vtkDICOMReader> series_data_reader;
 
-                        series_data_reader->SetFileName(images_files->GetValue(0).c_str());
+                        series_data_reader->SetMemoryRowOrderToFileNative();
+                        series_data_reader->SetFileNames(images_files);
                         series_data_reader->Update();
 
-                        createPreviewImage(series_data_reader);
+                        auto preview = createPreviewImage(series_data_reader);
+                        curr_series.setPreview(std::move(preview));
 
                         auto meta = series_data_reader->GetMetaData();
 
@@ -96,7 +96,24 @@ namespace cadsi_lib::dicom::providers {
         return {true, 0, {}, _patients};
     }
 
-    void FileDataDicomProvider::createPreviewImage(vtkDICOMReader* reader) {
+    QImage FileDataDicomProvider::createPreviewImage(vtkDICOMReader* reader) {
+        vtkAlgorithmOutput* portToDisplay = reader->GetOutputPort();
+        vtkMatrix4x4* matrix = reader->GetPatientMatrix();
 
+        vtkDICOMMetaData* meta = reader->GetMetaData();
+        vtkNew<vtkDICOMCTRectifier> rect;
+        if (meta->Get(DC::Modality).Matches("CT")) {
+            rect->SetVolumeMatrix(matrix);
+            rect->SetInputConnection(portToDisplay);
+            rect->Update();
+            portToDisplay = rect->GetOutputPort();
+            matrix = rect->GetRectifiedMatrix();
+        }
+
+        auto image_data = PreviewImage::generatePreviewImage(matrix, portToDisplay);
+
+        auto qimage = PreviewImage::vtkImageDataToQImage(image_data);
+
+        return qimage;
     }
 }    //namespace cadsi_lib::dicom::providers

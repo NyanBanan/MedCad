@@ -8,6 +8,7 @@
 #include <QFileInfo>
 #include <ranges>
 #include <string>
+#include <vtkDICOMCTRectifier.h>
 #include <vtkDICOMDirectory.h>
 #include <vtkDICOMFileSorter.h>
 #include <vtkDICOMItem.h>
@@ -22,6 +23,7 @@
 #include "cadsi_lib/OperationStatus.hpp"
 #include "cadsi_lib/Result.hpp"
 #include "cadsi_lib/dicom/DicomPatient.hpp"
+#include "cadsi_lib/dicom/PreviewImage.hpp"
 #include "cadsi_lib/file_data/FileDataErrors.hpp"
 #include "cadsi_lib/volumes/VolumeObject.hpp"
 
@@ -33,7 +35,7 @@ namespace cadsi_lib::dicom::providers {
         Result<QList<DicomPatient>> readDir(const QString& dir_path);
 
     private:
-        void createPreviewImage(vtkDICOMReader* reader);
+        QImage createPreviewImage(vtkDICOMReader* reader);
 
         QList<DicomPatient> _patients;
     };

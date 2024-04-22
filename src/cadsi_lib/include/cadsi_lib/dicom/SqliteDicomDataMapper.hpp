@@ -6,10 +6,11 @@
 #define CADSI_SQLITEDICOMDATAMAPPER_HPP
 
 #include <QSqlDatabase>
+#include <QSqlRecord>
+#include <qbuffer.h>
 #include <ranges>
-
-#include <vtkDICOMReader.h>
 #include <vtkDICOMMetaData.h>
+#include <vtkDICOMReader.h>
 #include <vtkNew.h>
 
 #include "SqliteDicomDataBase.hpp"
