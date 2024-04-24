@@ -101,21 +101,33 @@ namespace cadsi_lib::dicom {
     }
 
     QDate DicomPatient::getBirthDate() const {
-        return QDate::fromString(getBirthDateString(), "yyyyMMdd");
+        return QDate::fromString(getBirthDateDicomString(), "yyyyMMdd");
     }
 
-    QString DicomPatient::getBirthDateString() const {
+    QString DicomPatient::getBirthDateDicomString() const {
         return QString::fromStdString(getMeta(DC::PatientBirthDate).GetValue().AsString());
     }
 
+    QString DicomPatient::getBirthDateBySlashString() const {
+        return getBirthDate().toString("yyyy/MM/dd");
+    }
+
     void DicomPatient::setBirthDate(const QDate& birthDate) {
-        vtkDICOMValue val{vtkDICOMVR::DA, birthDate.toString("yyyyMMdd").toStdString()};
-        setBirthDate(val);
+        setBirthDate(std::move(birthDate.toString("yyyyMMdd")));
     }
 
     void DicomPatient::setBirthDate(QDate&& birthDate) {
-        vtkDICOMValue val{vtkDICOMVR::DA, birthDate.toString("yyyyMMdd").toStdString()};
-        setBirthDate(val);
+        setBirthDate(std::move(birthDate.toString("yyyyMMdd")));
+    }
+
+    void DicomPatient::setBirthDate(const QString& birthDateDicomStr) {
+        vtkDICOMValue val{vtkDICOMVR::DA, birthDateDicomStr.toStdString()};
+        setBirthDate(std::move(val));
+    }
+
+    void DicomPatient::setBirthDate(QString&& birthDateDicomStr) {
+        vtkDICOMValue val{vtkDICOMVR::DA, birthDateDicomStr.toStdString()};
+        setBirthDate(std::move(val));
     }
 
     void DicomPatient::setBirthDate(const vtkDICOMValue& birthDate) {
@@ -176,15 +188,16 @@ namespace cadsi_lib::dicom {
         _series.reserve(size);
     }
 
-    qsizetype DicomPatient::numOfSeries() {
+    qsizetype DicomPatient::numOfSeries() const {
         return _series.size();
     }
 
-    qsizetype DicomPatient::numOfImages() {
-        auto a = std::accumulate(_series.begin(), _series.end(), qsizetype{0},  [](const qsizetype &a, const DicomSeries &b){
-            auto bc = b.numOfImages();
-            return a + bc;
-        });
+    qsizetype DicomPatient::numOfImages() const {
+        auto a =
+            std::accumulate(_series.begin(), _series.end(), qsizetype{0}, [](const qsizetype& a, const DicomSeries& b) {
+                auto bc = b.numOfImages();
+                return a + bc;
+            });
         return a;
     }
 }    //namespace cadsi_lib::dicom

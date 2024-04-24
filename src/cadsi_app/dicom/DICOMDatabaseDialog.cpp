@@ -5,26 +5,95 @@
 #include "DICOMDatabaseDialog.hpp"
 
 DICOMDatabaseDialog::DICOMDatabaseDialog(QWidget* parent) : QDialog(parent) {
-        _ui.setupUi(this);
-        cadsi_lib::dicom::SqliteDicomDataMapper map;
-        cadsi_lib::dicom::providers::FileDataDicomProvider provider;
-        auto data = provider.readDir("C:/Users/moksh/OneDrive/Рабочий стол/Dicoms/dicom/AN11F1967");
-        auto patient_data = data.data;
-        auto patient_model = new DICOMPatientMetaDataTableModel;
-        for(auto i = 0; i < 100; ++i) {
-            patient_model->pushBack(patient_data[0]);
-        }
-        _ui.tableViewPatients->setModel(patient_model);
-//        auto patient_delegate = new DICOMPatientMetaDataTableDelegate;
-//        _ui.tableViewPatients->setItemDelegate(patient_delegate);
-        auto series_data = patient_data[0].getSeries();
-        auto model = new DICOMImageMetaDataTableModel;
-        for (const auto& curr_series : series_data) {
-            auto curr_series_meta = curr_series.getMetaCollection();
-            for (const auto& curr_meta : curr_series_meta) {
-                model->pushBack(DICOMImageMetaDataTableModelObject::fromDicomDataElement(curr_meta));
-            }
-        }
-        _ui.seriesDataTableView->setModel(model);
-        _ui.seriesDataTableView->update();
+    initDataBaseFile();
+
+    _ui.setupUi(this);
+
+    _ui.tableViewPatients->setModel(&_model);
+
+    auto selection_model = _ui.tableViewPatients->selectionModel();
+    connect(selection_model, &QItemSelectionModel::selectionChanged, this, &DICOMDatabaseDialog::patientSelectionChanged);
+
+    connect(&_mapper, &DICOMFromFilesToSqlMapper::error, this, &DICOMDatabaseDialog::showErrorMessage);
+    connect(&_mapper, &DICOMFromFilesToSqlMapper::updatedData, this, &DICOMDatabaseDialog::updatePatientsData);
+
+    _mapper.setDataBaseFile(_db_file);
+
+    _mapper.loadFromSql();
+}
+
+void DICOMDatabaseDialog::initDataBaseFile() {
+    QDir _db_file_path{QProcessEnvironment::systemEnvironment().value("APPDATA")};
+    if (!_db_file_path.cd("cadsi")) {
+        _db_file_path.mkdir("cadsi");
+        _db_file_path.cd("cadsi");
     }
+    _db_file = _db_file_path.absoluteFilePath("dicom.db");
+}
+
+void DICOMDatabaseDialog::patientSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
+    auto size = selected.size();
+    if (size == 0) {
+        _ui.seriesListWidget->clear();
+        _ui.seriesListWidget->selectionModel()->clear();
+        _ui.deletePushButton->setEnabled(false);
+    } else if (size == 1) {
+        _ui.seriesListWidget->selectionModel()->clear();
+        _ui.deletePushButton->setEnabled(true);
+        auto patient_index = selected.indexes()[0];
+        auto series_list = patient_index.data(DICOMPatientTableModel::PatientDataRoles::SERIES_ROLE)
+                               .value<QList<cadsi_lib::dicom::DicomSeries>>();
+
+        int curr_series_ind = 0;
+        std::ranges::for_each(series_list,
+                              [&curr_series_ind, &patient_index, this](const cadsi_lib::dicom::DicomSeries& series) {
+                                  auto* curr_item = new DICOMSeriesListWidgetItem(series);
+
+                                  auto series_index = patient_index.model()->index(curr_series_ind++, 0, patient_index);
+                                  curr_item->setModelIndex(series_index);
+                                  _ui.seriesListWidget->addItem(curr_item);
+                              });
+    } else if (size > 0) {
+        _ui.seriesListWidget->clear();
+        _ui.seriesListWidget->selectionModel()->clear();
+        _ui.deletePushButton->setEnabled(true);
+    }
+}
+
+void DICOMDatabaseDialog::showErrorMessage(const QString& error_message) {
+    _error_win.showMessage(error_message);
+}
+
+void DICOMDatabaseDialog::updatePatientsData(QList<cadsi_lib::dicom::DicomPatient> patients) {
+    _model.setPatients(patients);
+}
+
+void DICOMDatabaseDialog::on_scanPushButton_pressed() {
+    auto dir = QFileDialog::getExistingDirectory(this, "Открыть", QDir::homePath(), QFileDialog::ShowDirsOnly);
+    if (!dir.isEmpty()) {
+        auto progress_dialog = new QProgressDialog();
+
+        connect(progress_dialog, &QProgressDialog::finished, progress_dialog, &QObject::deleteLater);
+
+        progress_dialog->setMinimum(0);
+        progress_dialog->setMaximum(0);
+        progress_dialog->setValue(0);
+        progress_dialog->resize(400, 100);
+        progress_dialog->setLabel(new QLabel("Чтение DICOM файлов", this));
+        progress_dialog->show();
+
+        auto thread = new QThread();
+
+        connect(&_mapper, &DICOMFromFilesToSqlMapper::finished, thread, &QThread::quit);
+
+        connect(progress_dialog, &QProgressDialog::canceled, thread, &QThread::quit);
+
+        connect(thread, &QThread::finished, progress_dialog, &QProgressDialog::close);
+        connect(thread, &QThread::started, &_mapper, &DICOMFromFilesToSqlMapper::loadToDataBase);
+
+        _mapper.moveToThread(thread);
+        _mapper.setDicomDir(dir);
+
+        thread->start();
+    }
+}

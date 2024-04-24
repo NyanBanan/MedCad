@@ -632,25 +632,22 @@
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
         </property>
-        <property name="sortingEnabled">
-         <bool>true</bool>
-        </property>
        </widget>
       </item>
       <item>
-       <widget class="QTableView" name="seriesDataTableView">
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
+       <widget class="QListWidget" name="seriesListWidget">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
         </property>
-        <property name="sortingEnabled">
-         <bool>true</bool>
+        <property name="movement">
+         <enum>QListView::Static</enum>
         </property>
-        <attribute name="horizontalHeaderStretchLastSection">
-         <bool>true</bool>
-        </attribute>
-        <attribute name="verticalHeaderShowSortIndicator" stdset="0">
-         <bool>true</bool>
-        </attribute>
+        <property name="flow">
+         <enum>QListView::LeftToRight</enum>
+        </property>
+        <property name="viewMode">
+         <enum>QListView::IconMode</enum>
+        </property>
        </widget>
       </item>
       <item>

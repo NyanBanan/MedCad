@@ -16,10 +16,7 @@ namespace cadsi_lib::dicom {
 	    \warning If an error happens error_code returned from QSqlError::ErrorTypes
          */
         OperationStatus createOrConnect(QString path) override;
-        Result<QSqlDatabase> getConnection() override;
-        Result<bool> checkTablesExists() override;
-        OperationStatus createTables() override;
-
+        Result<QSqlDatabase> getConnection() const override;
     private:
         QSqlDatabase _connection;
     };

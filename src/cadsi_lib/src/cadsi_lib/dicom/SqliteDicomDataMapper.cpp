@@ -44,7 +44,7 @@ namespace cadsi_lib::dicom {
             patient.setName(query.value(1).toString());
             patient.setId(query.value(2).toString());
             patient.setSex(query.value(3).toString());
-            patient.setBirthDate(query.value(4).toDate());
+            patient.setBirthDate(query.value(4).toString());
             patient.setComments(query.value(5).toString());
         }
 
@@ -74,7 +74,7 @@ namespace cadsi_lib::dicom {
                 return {slices_res.status};
             }
             auto& curr_series = series.emplaceBack();
-            curr_series.setPreview(QImage::fromData(series_query.value(preview_field_ind).toByteArray(), "jpeg"));
+            curr_series.setPreview(QImage::fromData(series_query.value(preview_field_ind).toByteArray(), "jpg"));
 
             auto slices = slices_res.data;
 
@@ -171,7 +171,7 @@ namespace cadsi_lib::dicom {
             query.addBindValue(patient.getName());
             query.addBindValue(patient.getId());
             query.addBindValue(patient.getSex());
-            query.addBindValue(patient.getBirthDateString());
+            query.addBindValue(patient.getBirthDateDicomString());
             query.addBindValue(patient.getComments());
             if (!query.exec()) {
                 auto error = query.lastError();

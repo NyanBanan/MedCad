@@ -41,9 +41,7 @@ namespace cadsi_lib::dicom {
 	    \warning If an error happens error_code returned from QSqlError::ErrorTypes
          */
         virtual OperationStatus createOrConnect(QString path) = 0;
-        virtual Result<QSqlDatabase> getConnection() = 0;
-        virtual Result<bool> checkTablesExists() = 0;
-        virtual OperationStatus createTables() = 0;
+        [[nodiscard]] virtual Result<QSqlDatabase> getConnection() const = 0;
 
         /*!
           \warning generate_sql_table_creation required tables with 2 or more columns. Violation of this condition will cause ASSERT

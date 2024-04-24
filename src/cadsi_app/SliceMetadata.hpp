@@ -7,16 +7,19 @@
 
 #include <QWidget>
 
+#include "dicom/DICOMImageMetaDataTableModelObject.hpp"
+
 #include "ui_files/ui_slicemetadata.h"
 
+class SliceMetadata : public QWidget {
+    Q_OBJECT
+public:
+    SliceMetadata(QWidget* parent);
 
-    class SliceMetadata : public QWidget {
-        Q_OBJECT
-    public:
-        SliceMetadata(QWidget* parent);
+private:
+    QList<DICOMImageMetaDataTableModelObject> _slices;
 
-    private:
-        Ui::SliceMetadata _ui;
-    };
+    Ui::SliceMetadata _ui;
+};
 
 #endif    //CADSI_SLICEMETADATA_HPP

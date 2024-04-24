@@ -25,14 +25,17 @@ qt_add_executable(cadsi src/main.cpp resources/resources.qrc
         src/cadsi_app/dicom/DICOMImageMetaDataTableModel.hpp
         src/cadsi_app/dicom/DICOMImageMetaDataTableModelObject.cpp
         src/cadsi_app/dicom/DICOMImageMetaDataTableModelObject.hpp
-        src/cadsi_app/dicom/DICOMPatientMetaDataTableModel.cpp
-        src/cadsi_app/dicom/DICOMPatientMetaDataTableModel.hpp
-        src/cadsi_app/dicom/DICOMPatientMetaDataTableModelObject.cpp
-        src/cadsi_app/dicom/DICOMPatientMetaDataTableModelObject.hpp
-        src/cadsi_app/dicom/DICOMPatientMetaDataTableDelegate.cpp
-        src/cadsi_app/dicom/DICOMPatientMetaDataTableDelegate.hpp)
+        src/cadsi_app/dicom/DICOMPatientTableModel.cpp
+        src/cadsi_app/dicom/DICOMPatientTableModel.hpp
+        src/cadsi_app/dicom/DICOMFromFilesToSqlMapper.cpp
+        src/cadsi_app/dicom/DICOMFromFilesToSqlMapper.hpp
+        src/cadsi_app/dicom/CadsiLibDicomDeclareMetatype.hpp
+        src/cadsi_app/dicom/DICOMSeriesListWidgetItem.cpp
+        src/cadsi_app/dicom/DICOMSeriesListWidgetItem.hpp
+        src/cadsi_app/GlobalSettingsConfigurator.cpp
+        src/cadsi_app/GlobalSettingsConfigurator.hpp)
 
-if(NOT DEFINED CMAKE_UTILS_FILE)
+if (NOT DEFINED CMAKE_UTILS_FILE)
     set(CMAKE_UTILS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/UtilFunctions.cmake")
 endif ()
 
@@ -48,14 +51,22 @@ endif ()
 
 add_subdirectory(src/cadsi_lib)
 
-target_link_libraries(cadsi PRIVATE ${QT_LIBRARIES} ${VTK_LIBRARIES} cadsi_lib)
+target_link_libraries(cadsi PRIVATE ${QT_LIBRARIES} ${VTK_LIBRARIES} yaml-cpp::yaml-cpp cadsi_lib)
 
 if (WIN32 AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     include(${CMAKE_UTILS_FILE})
     set(JPEG_REQUIRED TRUE)
+    set(SQLITE_REQUIRED TRUE)
     copy_required_dlls(cadsi)
+    unset(SQLITE_REQUIRED)
     unset(JPEG_REQUIRED)
 endif ()
+
+#Copy default settings data to build directory
+add_custom_command(TARGET cadsi POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/src/cadsi_lib/data $<TARGET_FILE_DIR:cadsi>/settings
+        COMMAND_EXPAND_LISTS
+)
 
 vtk_module_autoinit(TARGETS cadsi MODULES ${VTK_LIBRARIES})
 
