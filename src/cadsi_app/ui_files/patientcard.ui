@@ -591,8 +591,11 @@
    <string>Загрузка данных</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QTableView{
-	selection-background-color: rgb(98, 98, 98)
+   <string notr="true">QListWidget{
+	selection-background-color: rgb(98, 98, 98);
+}
+QTableView{
+	selection-background-color: rgb(98, 98, 98);
 }
 QPushButton:disabled{
 	background: rgb(100, 100, 100);
@@ -600,7 +603,7 @@ QPushButton:disabled{
 }
 QPushButton:hover{
 	background: rgb(98, 98, 98);
-	border: 1px solid rgb(53, 53, 53)
+	border: 1px solid rgb(53, 53, 53);
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">

@@ -12,9 +12,7 @@ DICOMSeriesListWidgetItem::DICOMSeriesListWidgetItem(const cadsi_lib::dicom::Dic
     if (preview.isNull()) {
         icon.addPixmap(QPixmap(":/icons/photo.jpg"), QIcon::Normal, QIcon::Off);
     } else {
-        auto prev_valid = preview.isNull();
-        auto pix =QPixmap::fromImage(preview);
-        auto valid = pix.isNull();
+        auto pix = QPixmap::fromImage(preview);
         icon.addPixmap(pix, QIcon::Normal, QIcon::Off);
     }
     setIcon(icon);
