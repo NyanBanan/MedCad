@@ -9,7 +9,7 @@ namespace cadsi_lib::dicom::providers {
         return {.status{.success = true}, .data = _patients};
     }
 
-    Result<QList<DicomPatient>> FileDataDicomProvider::readDir(const QString& dir_path) {
+    Result<QList<DicomPatient>> FileDataDicomProvider::readDir(const QString& dir_path, bool need_deep_search) {
         QFileInfo dir(dir_path);
         if (!dir.exists()) {
             return {false, cadsi_lib::file_data::ErrorCodes::FILE_NOT_EXIST};
@@ -18,6 +18,9 @@ namespace cadsi_lib::dicom::providers {
         }
         vtkNew<vtkDICOMDirectory> dicomdir;
         dicomdir->SetDirectoryName(dir.absoluteFilePath().toStdString().c_str());
+        if (need_deep_search) {
+            dicomdir->SetScanDepth(countDepth(dir_path));
+        }
         dicomdir->Update();
 
         int n = dicomdir->GetNumberOfPatients();
@@ -115,5 +118,22 @@ namespace cadsi_lib::dicom::providers {
         auto qimage = PreviewImage::vtkImageDataToQImage(image_data);
 
         return qimage;
+    }
+
+    //TODO: Try remove recursion
+    int FileDataDicomProvider::countDepth(const QString& dir_path) {
+        QDir dir(dir_path);
+        auto entry_dirs = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        if (entry_dirs.isEmpty()) {
+            return 1;
+        }
+        auto max_depth = 0;
+        for (const auto& dir_name : entry_dirs) {
+            auto count = countDepth(dir.absoluteFilePath(dir_name));
+            if (count > max_depth) {
+                max_depth = count + 1;
+            }
+        }
+        return max_depth;
     }
 }    //namespace cadsi_lib::dicom::providers

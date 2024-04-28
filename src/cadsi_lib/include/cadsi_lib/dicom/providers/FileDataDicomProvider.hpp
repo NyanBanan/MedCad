@@ -6,6 +6,7 @@
 #define CADSI_FILEDATADICOMPROVIDER_HPP
 
 #include <QFileInfo>
+#include <qdir.h>
 #include <ranges>
 #include <string>
 #include <vtkDICOMCTRectifier.h>
@@ -32,9 +33,10 @@ namespace cadsi_lib::dicom::providers {
     class FileDataDicomProvider : public DicomProvider {
     public:
         Result<QList<DicomPatient>> getAllPatients() override;
-        Result<QList<DicomPatient>> readDir(const QString& dir_path);
+        Result<QList<DicomPatient>> readDir(const QString& dir_path, bool need_deep_search);
 
     private:
+        int countDepth(const QString& dir_path);
         QImage createPreviewImage(vtkDICOMReader* reader);
 
         QList<DicomPatient> _patients;

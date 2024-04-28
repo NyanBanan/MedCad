@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     cadsi_lib::dicom::providers::FileDataDicomProvider file_data_provider;
     //Windows paths with russian symbols might cause problems. Dir may be recognized as not existing. That's why I decode input
     auto to_utf8 = QStringDecoder(QStringDecoder::System);
-    auto result = file_data_provider.readDir(to_utf8(argv[1]));
+    auto result = file_data_provider.readDir(to_utf8(argv[1]), false);
     if (!result.status.success) {
         auto status = result.status;
         std::cout << status.error_code << " " << status.error_message << std::endl;

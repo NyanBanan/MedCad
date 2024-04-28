@@ -17,7 +17,8 @@
 #include "../ui_files/ui_dicomdatabasedialog.h"
 #include "DICOMFromFilesToSqlMapper.hpp"
 #include "DICOMImageMetaDataTableModel.hpp"
-#include "DICOMPatientTableModel.hpp"
+#include "DICOMPatientItemModel.hpp"
+#include "DICOMScanDialog.hpp"
 #include "DICOMSeriesListWidgetItem.hpp"
 
 class DICOMDatabaseDialog : public QDialog {
@@ -26,8 +27,9 @@ public:
     DICOMDatabaseDialog(QWidget* parent = nullptr);
 public slots:
     void patientSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
-    void updatePatientsData(QList<cadsi_lib::dicom::DicomPatient> patients);
+    void updatePatientsData(const QList<cadsi_lib::dicom::DicomPatient>& patients);
     void showErrorMessage(const QString& error_message);
+    void scanDicomDir(bool deep_scan, const QString& scan_dir);
     void on_scanPushButton_pressed();
 
 private:
@@ -35,7 +37,7 @@ private:
 
     QString _db_file;
     QErrorMessage _error_win;
-    DICOMPatientTableModel _model;
+    DICOMPatientItemModel _model;
     DICOMFromFilesToSqlMapper _mapper;
     Ui::DICOMDatabaseDialog _ui;
 };

@@ -78,7 +78,6 @@ namespace cadsi_lib::dicom {
         }
 
     private:
-        QHash<vtkDICOMTag, vtkDICOMDataElement> _series_meta;
         QImage _preview_image;
         QList<DicomImage> _images;
     };

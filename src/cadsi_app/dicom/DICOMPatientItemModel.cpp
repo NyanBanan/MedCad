@@ -2,17 +2,17 @@
 // Created by nyanbanan on 16.04.2024.
 //
 
-#include "DICOMPatientTableModel.hpp"
+#include "DICOMPatientItemModel.hpp"
 
-int DICOMPatientTableModel::rowCount(const QModelIndex& parent) const {
+int DICOMPatientItemModel::rowCount(const QModelIndex& parent) const {
     return (int)_patients.size();
 }
 
-int DICOMPatientTableModel::columnCount(const QModelIndex& parent) const {
+int DICOMPatientItemModel::columnCount(const QModelIndex& parent) const {
     return LAST_ROLE - FIRST_ROLE - 1;
 }
 
-QVariant DICOMPatientTableModel::data(const QModelIndex& index, int role) const {
+QVariant DICOMPatientItemModel::data(const QModelIndex& index, int role) const {
     if (index.isValid()) {
         switch (role) {
             case Qt::DisplayRole: {
@@ -41,29 +41,30 @@ QVariant DICOMPatientTableModel::data(const QModelIndex& index, int role) const 
                     }
                 }
             }
-            case PatientDataRoles::SERIES_ROLE: {
+                //КАЖДАЯ МОДЕЛЬ (ПАЦИЕНТ СЕРИЯ СНИМОК) НАСЛЕДНИКИ ЭТОЙ МОДЕЛИ СО СВОИМИ РОЛЯМИ И ПЕРЕГРУЗКАМИ ДАТЫ ИНДЕКСА И РОДИТЕЛЯ 
+            case PatientDataRoles::ALL_SERIES_FOR_PATIENT_ROLE: {
                 return QVariant::fromValue(_patients[index.row()].getSeries());
             }
-            case PatientDataRoles::SLICES_ROLE: {
+            case PatientDataRoles::SERIES_ROLE: {
                 auto series_index = index;
-                auto patient_index_ptr = static_cast<QModelIndex*>(series_index.internalPointer());
-                if (patient_index_ptr == nullptr) {
-                    return {};
-                }
-                auto patient_index = *patient_index_ptr;
+                auto patient_id = (int)series_index.internalId();
+                auto patient_index = this->index(patient_id, 0);
                 if (!patient_index.isValid()) {
                     return {};
                 }
-                auto series_data = data(patient_index, SERIES_ROLE).value<QList<cadsi_lib::dicom::DicomSeries>>();
+                auto series_data = data(patient_index, ALL_SERIES_FOR_PATIENT_ROLE).value<QList<cadsi_lib::dicom::DicomSeries>>();
                 auto slices_data = series_data[series_index.row()].getImages();
                 return QVariant::fromValue(slices_data);
+            }
+            default: {
+                return {};
             }
         }
     }
     return {};
 }
 
-QVariant DICOMPatientTableModel::headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant DICOMPatientItemModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (orientation != Qt::Horizontal || role != Qt::DisplayRole) {
         return QAbstractItemModel::headerData(section, orientation, role);
     }
@@ -92,7 +93,8 @@ QVariant DICOMPatientTableModel::headerData(int section, Qt::Orientation orienta
     }
 }
 
-void DICOMPatientTableModel::setPatients(const QList<cadsi_lib::dicom::DicomPatient>& patients) {
+void DICOMPatientItemModel::setPatients(const QList<cadsi_lib::dicom::DicomPatient>& patients) {
+    beginResetModel();
     if (!_patients.isEmpty()) {
         beginRemoveRows({}, 0, (int)_patients.size() - 1);
         _patients.clear();
@@ -103,30 +105,28 @@ void DICOMPatientTableModel::setPatients(const QList<cadsi_lib::dicom::DicomPati
         _patients = patients;
         endInsertRows();
     }
+    endResetModel();
 }
 
-void DICOMPatientTableModel::pushBack(const cadsi_lib::dicom::DicomPatient& patient) {
+void DICOMPatientItemModel::pushBack(const cadsi_lib::dicom::DicomPatient& patient) {
     auto new_elem_pos = (int)_patients.size();
     beginInsertRows({}, new_elem_pos, new_elem_pos);
     _patients.append(patient);
     endInsertRows();
 }
 
-QModelIndex DICOMPatientTableModel::index(int row, int column, const QModelIndex& parent) const {
-    return hasIndex(row, column, parent) ? createIndex(row, column, &parent) : QModelIndex();
+QModelIndex DICOMPatientItemModel::index(int row, int column, const QModelIndex& parent) const {
+    return hasIndex(row, column, parent) ? createIndex(row, column, parent.row()) : QModelIndex();
 }
 
-QModelIndex DICOMPatientTableModel::parent(const QModelIndex& child) const {
+QModelIndex DICOMPatientItemModel::parent(const QModelIndex& child) const {
     if (!child.isValid()) {
         return {};
     }
-    auto parent_ptr = static_cast<QModelIndex*>(child.internalPointer());
-    if (parent_ptr == nullptr) {
+    auto parent_id = (int)child.internalId();
+    auto parent_index = index(parent_id, 0);
+    if (!parent_index.isValid()) {
         return {};
     }
-    auto parent = *parent_ptr;
-    if (!parent.isValid()) {
-        return {};
-    }
-    return parent;
+    return parent_index;
 }

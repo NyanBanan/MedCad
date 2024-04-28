@@ -25,7 +25,6 @@ namespace cadsi_lib::dicom {
 
     private:
         QString _image_file;
-        QHash<vtkDICOMTag, vtkDICOMDataElement> _image_meta;
     };
 }    //namespace cadsi_lib::dicom
 #endif    //CADSI_DICOMIMAGE_HPP

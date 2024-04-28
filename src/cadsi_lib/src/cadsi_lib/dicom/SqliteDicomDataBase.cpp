@@ -6,8 +6,10 @@
 
 namespace cadsi_lib::dicom {
     OperationStatus SqliteDicomDataBase::createOrConnect(QString path) {
-        _connection = QSqlDatabase::addDatabase("QSQLITE", "DICOMDB");
-        _connection.setDatabaseName(path);
+        if(!_connection.isValid()) {
+            _connection = QSqlDatabase::addDatabase("QSQLITE", "DICOMDB");
+            _connection.setDatabaseName(path);
+        }
         if (_connection.open()) {
             return {.success = true};
         } else {

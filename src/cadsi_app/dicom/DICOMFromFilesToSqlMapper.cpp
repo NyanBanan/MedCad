@@ -4,7 +4,9 @@
 
 #include "DICOMFromFilesToSqlMapper.hpp"
 
-DICOMFromFilesToSqlMapper::DICOMFromFilesToSqlMapper(QObject* parent) : QObject(parent) {}
+DICOMFromFilesToSqlMapper::DICOMFromFilesToSqlMapper(QObject* parent) : QObject(parent) {
+    connect(this, &DICOMFromFilesToSqlMapper::error, this, &DICOMFromFilesToSqlMapper::finished);
+}
 
 void DICOMFromFilesToSqlMapper::setDataBaseFile(const QString& db_path) {
     if (_db_file_path != db_path) {
@@ -17,11 +19,15 @@ void DICOMFromFilesToSqlMapper::setDicomDir(const QString& dicom_dir) {
     _dicom_dir = dicom_dir;
 }
 
+void DICOMFromFilesToSqlMapper::setNeedDeepScan(bool need_deep_search) {
+    _need_deep_search = need_deep_search;
+}
+
 void DICOMFromFilesToSqlMapper::loadToDataBase() {
     updateConnection();
 
     cadsi_lib::dicom::providers::FileDataDicomProvider file_data_provider;
-    auto result = file_data_provider.readDir(_dicom_dir);
+    auto result = file_data_provider.readDir(_dicom_dir, _need_deep_search);
     if (!result.status.success) {
         emit error(QString::fromStdString(result.status.error_message));
         return;

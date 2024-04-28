@@ -25,15 +25,17 @@ qt_add_executable(cadsi src/main.cpp resources/resources.qrc
         src/cadsi_app/dicom/DICOMImageMetaDataTableModel.hpp
         src/cadsi_app/dicom/DICOMImageMetaDataTableModelObject.cpp
         src/cadsi_app/dicom/DICOMImageMetaDataTableModelObject.hpp
-        src/cadsi_app/dicom/DICOMPatientTableModel.cpp
-        src/cadsi_app/dicom/DICOMPatientTableModel.hpp
+        src/cadsi_app/dicom/DICOMPatientItemModel.cpp
+        src/cadsi_app/dicom/DICOMPatientItemModel.hpp
         src/cadsi_app/dicom/DICOMFromFilesToSqlMapper.cpp
         src/cadsi_app/dicom/DICOMFromFilesToSqlMapper.hpp
         src/cadsi_app/dicom/CadsiLibDicomDeclareMetatype.hpp
         src/cadsi_app/dicom/DICOMSeriesListWidgetItem.cpp
         src/cadsi_app/dicom/DICOMSeriesListWidgetItem.hpp
         src/cadsi_app/GlobalSettingsConfigurator.cpp
-        src/cadsi_app/GlobalSettingsConfigurator.hpp)
+        src/cadsi_app/GlobalSettingsConfigurator.hpp
+        src/cadsi_app/dicom/DICOMScanDialog.cpp
+        src/cadsi_app/dicom/DICOMScanDialog.hpp)
 
 if (NOT DEFINED CMAKE_UTILS_FILE)
     set(CMAKE_UTILS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/UtilFunctions.cmake")

@@ -13,6 +13,13 @@ namespace cadsi_lib::dicom {
     class SqliteDicomDataBase : public DicomDataBase{
     public:
         /*!
+         * Error codes from sqlite
+         * \warning There is only 1 code because i use it for constraint error checking
+         */
+        enum SQLiteNativeErrorCodes{
+            SQLITE_CONSTRAINT_UNIQUE = 2067
+        };
+        /*!
 	    \warning If an error happens error_code returned from QSqlError::ErrorTypes
          */
         OperationStatus createOrConnect(QString path) override;

@@ -18,6 +18,7 @@ public:
 
     void setDataBaseFile(const QString& db_path);
     void setDicomDir(const QString& dicom_dir);
+    void setNeedDeepScan(bool need_deep_search);
 public slots:
     void loadToDataBase();
     void loadFromSql();
@@ -29,6 +30,7 @@ private:
     void updateConnection();
 
     bool _connection_need_update{false};
+    bool _need_deep_search;
     QString _db_file_path{};
     QString _dicom_dir{};
     cadsi_lib::dicom::SqliteDicomDataBase _db;

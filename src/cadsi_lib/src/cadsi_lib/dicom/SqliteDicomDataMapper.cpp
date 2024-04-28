@@ -28,7 +28,7 @@ namespace cadsi_lib::dicom {
             auto error = query.lastError();
             return {.status = {.success = false,
                                .error_code = static_cast<unsigned int>(error.type()),
-                               .error_message = error.text().toStdString()}};
+                               .error_message = std::format("getAllPatients error: {}", error.text().toStdString())}};
         }
 
         QList<DicomPatient> patients;
@@ -61,7 +61,9 @@ namespace cadsi_lib::dicom {
             auto error = series_query.lastError();
             return {.status = {.success = false,
                                .error_code = static_cast<unsigned int>(error.type()),
-                               .error_message = error.text().toStdString()}};
+                               .error_message = std::format("selectAllSeriesForPatient with id - {} error: {}",
+                                                            patient_uid,
+                                                            error.text().toStdString())}};
         }
 
         QList<DicomSeries> series;
@@ -120,7 +122,9 @@ namespace cadsi_lib::dicom {
             auto error = series_query.lastError();
             return {.status = {.success = false,
                                .error_code = static_cast<unsigned int>(error.type()),
-                               .error_message = error.text().toStdString()}};
+                               .error_message = std::format("selectAllSlicesForSeries with id - {} error: {}",
+                                                            series_uid,
+                                                            error.text().toStdString())}};
         }
 
         QList<DicomImage> slices;
@@ -165,9 +169,11 @@ namespace cadsi_lib::dicom {
         QSqlQuery query(conn);
 
         auto query_str = DicomDataBase::sql_patient_insert;
-        query.prepare(query_str);
 
         for (const auto& patient : patients) {
+            uint patient_id;
+
+            query.prepare(query_str);
             query.addBindValue(patient.getName());
             query.addBindValue(patient.getId());
             query.addBindValue(patient.getSex());
@@ -175,27 +181,37 @@ namespace cadsi_lib::dicom {
             query.addBindValue(patient.getComments());
             if (!query.exec()) {
                 auto error = query.lastError();
-                return {.success = false,
-                        .error_code = static_cast<unsigned int>(error.type()),
-                        .error_message = error.text().toStdString()};
-            }
-            auto id_var = query.lastInsertId();
-            uint patient_id;
-            if (id_var.isValid()) {
-                patient_id = id_var.value<uint>();
-            } else {
-                auto select_patient_id_query_str = DicomDataBase::sql_patient_select_by_unique_column;
-                query.prepare(select_patient_id_query_str);
-                query.addBindValue(patient.getName());
+                auto sqlite_code = error.nativeErrorCode().toInt();
+                if (sqlite_code
+                    == cadsi_lib::dicom::SqliteDicomDataBase::SQLiteNativeErrorCodes::SQLITE_CONSTRAINT_UNIQUE) {
+                    auto select_patient_id_query_str = DicomDataBase::sql_patient_select_by_unique_column;
+                    query.prepare(select_patient_id_query_str);
+                    query.addBindValue(patient.getName());
 
-                if (!query.exec()) {
-                    auto error = query.lastError();
+                    if (!query.exec()) {
+                        error = query.lastError();
+                        return {.success = false,
+                                .error_code = static_cast<unsigned int>(error.type()),
+                                .error_message = std::format("insertPatients select inserted patient id with name - "
+                                                             "{},  "
+                                                             "error: {}",
+                                                             patient.getName().toStdString(),
+                                                             error.text().toStdString())};
+                    }
+                    query.next();
+                    patient_id = query.value(0).value<uint>();
+                } else {
                     return {.success = false,
                             .error_code = static_cast<unsigned int>(error.type()),
-                            .error_message = error.text().toStdString()};
+                            .error_message = std::format("insertPatients with name - {},  error: {}",
+                                                         patient.getName().toStdString(),
+                                                         error.text().toStdString())};
                 }
-                query.next();
-                patient_id = query.value(0).value<uint>();
+            } else {
+                auto id_var = query.lastInsertId();
+                if (id_var.isValid()) {
+                    patient_id = id_var.value<uint>();
+                }
             }
             //Push patient series to database
             for (const auto& series : patient.getSeries()) {
@@ -241,9 +257,11 @@ namespace cadsi_lib::dicom {
         QSqlQuery query(conn);
 
         auto query_str = DicomDataBase::sql_series_insert;
-        query.prepare(query_str);
 
         for (const auto& curr_series : series) {
+            uint series_id;
+
+            query.prepare(query_str);
             query.addBindValue(curr_series.getUid());
             query.addBindValue(curr_series.getDateString());
             query.addBindValue(curr_series.getTimeString());
@@ -260,27 +278,38 @@ namespace cadsi_lib::dicom {
             query.addBindValue(patient_uid);
             if (!query.exec()) {
                 auto error = query.lastError();
-                return {.success = false,
-                        .error_code = static_cast<unsigned int>(error.type()),
-                        .error_message = error.text().toStdString()};
-            }
-            auto id_var = query.lastInsertId();
-            uint series_id;
-            if (id_var.isValid()) {
-                series_id = id_var.value<uint>();
-            } else {
-                auto select_series_id_query_str = DicomDataBase::sql_series_select_by_unique_column;
-                query.prepare(select_series_id_query_str);
-                query.addBindValue(curr_series.getUid());
+                auto sqlite_code = error.nativeErrorCode().toInt();
+                if (sqlite_code
+                    == cadsi_lib::dicom::SqliteDicomDataBase::SQLiteNativeErrorCodes::SQLITE_CONSTRAINT_UNIQUE) {
+                    auto select_series_id_query_str = DicomDataBase::sql_series_select_by_unique_column;
+                    query.prepare(select_series_id_query_str);
+                    query.addBindValue(curr_series.getUid());
 
-                if (!query.exec()) {
-                    auto error = query.lastError();
+                    if (!query.exec()) {
+                        error = query.lastError();
+
+                        return {.success = false,
+                                .error_code = static_cast<unsigned int>(error.type()),
+                                .error_message = std::format("insertSeries select inserted series id with series "
+                                                             "number - "
+                                                             "{},  error: {}",
+                                                             curr_series.getUid().toStdString(),
+                                                             error.text().toStdString())};
+                    }
+                    query.next();
+                    series_id = query.value(0).value<uint>();
+                } else {
                     return {.success = false,
                             .error_code = static_cast<unsigned int>(error.type()),
-                            .error_message = error.text().toStdString()};
+                            .error_message = std::format("insertSeries with series number - {},  error: {}",
+                                                         curr_series.getUid().toStdString(),
+                                                         error.text().toStdString())};
                 }
-                query.next();
-                series_id = query.value(0).value<uint>();
+            } else {
+                auto id_var = query.lastInsertId();
+                if (id_var.isValid()) {
+                    series_id = id_var.value<uint>();
+                }
             }
             //Push series images to database
             for (const auto& slice : curr_series.getImages()) {
@@ -335,7 +364,9 @@ namespace cadsi_lib::dicom {
             auto error = query.lastError();
             return {.success = false,
                     .error_code = static_cast<unsigned int>(error.type()),
-                    .error_message = error.text().toStdString()};
+                    .error_message = std::format("insertSlices with series uid - {},  error: {}",
+                                                 series_uid,
+                                                 error.text().toStdString())};
         }
         return {true};
     }

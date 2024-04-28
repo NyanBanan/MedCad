@@ -7,7 +7,7 @@
 
 int main(int argc, char* argv[]) {
     cadsi_lib::dicom::providers::FileDataDicomProvider provider;
-    auto result = provider.readDir("C:/Users/moksh/OneDrive/Рабочий стол/Dicoms/dicom/AN14F1981");
+    auto result = provider.readDir("C:/Users/moksh/OneDrive/Рабочий стол/Dicoms/dicom/AN14F1981", false);
     if (!result.status.success) {
         auto status = result.status;
         std::cout << status.error_code << " " << status.error_message << std::endl;

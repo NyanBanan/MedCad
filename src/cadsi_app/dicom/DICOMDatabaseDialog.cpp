@@ -28,7 +28,7 @@ void DICOMDatabaseDialog::initDataBaseFile() {
         _db_file_path.mkdir("cadsi");
         _db_file_path.cd("cadsi");
     }
-    _db_file = _db_file_path.absoluteFilePath("dicom.db");
+    _db_file = _db_file_path.absoluteFilePath("cadsi_dicom.db");
 }
 
 void DICOMDatabaseDialog::patientSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
@@ -41,7 +41,7 @@ void DICOMDatabaseDialog::patientSelectionChanged(const QItemSelection& selected
         _ui.seriesListWidget->selectionModel()->clear();
         _ui.deletePushButton->setEnabled(true);
         auto patient_index = selected.indexes()[0];
-        auto series_list = patient_index.data(DICOMPatientTableModel::PatientDataRoles::SERIES_ROLE)
+        auto series_list = patient_index.data(DICOMPatientItemModel::PatientDataRoles::ALL_SERIES_FOR_PATIENT_ROLE)
                                .value<QList<cadsi_lib::dicom::DicomSeries>>();
 
         int curr_series_ind = 0;
@@ -64,36 +64,49 @@ void DICOMDatabaseDialog::showErrorMessage(const QString& error_message) {
     _error_win.showMessage(error_message);
 }
 
-void DICOMDatabaseDialog::updatePatientsData(QList<cadsi_lib::dicom::DicomPatient> patients) {
+void DICOMDatabaseDialog::updatePatientsData(const QList<cadsi_lib::dicom::DicomPatient>& patients) {
     _model.setPatients(patients);
 }
 
 void DICOMDatabaseDialog::on_scanPushButton_pressed() {
-    auto dir = QFileDialog::getExistingDirectory(this, "Открыть", QDir::homePath(), QFileDialog::ShowDirsOnly);
-    if (!dir.isEmpty()) {
-        auto progress_dialog = new QProgressDialog();
+    auto scanDialog = new DICOMScanDialog();
 
-        connect(progress_dialog, &QProgressDialog::finished, progress_dialog, &QObject::deleteLater);
+    connect(scanDialog, &QDialog::finished, scanDialog, &QObject::deleteLater);
 
-        progress_dialog->setMinimum(0);
-        progress_dialog->setMaximum(0);
-        progress_dialog->setValue(0);
-        progress_dialog->resize(400, 100);
-        progress_dialog->setLabel(new QLabel("Чтение DICOM файлов", this));
-        progress_dialog->show();
+    connect(scanDialog, &DICOMScanDialog::scanDirSelected, this, &DICOMDatabaseDialog::scanDicomDir);
 
-        auto thread = new QThread();
+    scanDialog->show();
+}
 
-        connect(&_mapper, &DICOMFromFilesToSqlMapper::finished, thread, &QThread::quit);
+void DICOMDatabaseDialog::scanDicomDir(bool deep_scan, const QString& scan_dir) {
+    auto progress_dialog = new QProgressDialog();
 
-        connect(progress_dialog, &QProgressDialog::canceled, thread, &QThread::quit);
+    connect(progress_dialog, &QProgressDialog::finished, progress_dialog, &QObject::deleteLater);
 
-        connect(thread, &QThread::finished, progress_dialog, &QProgressDialog::close);
-        connect(thread, &QThread::started, &_mapper, &DICOMFromFilesToSqlMapper::loadToDataBase);
+    progress_dialog->setMinimum(0);
+    progress_dialog->setMaximum(0);
+    progress_dialog->setValue(0);
+    progress_dialog->resize(400, 100);
+    progress_dialog->setLabel(new QLabel("Чтение DICOM файлов", this));
+    progress_dialog->setModal(true);
+    progress_dialog->show();
 
-        _mapper.moveToThread(thread);
-        _mapper.setDicomDir(dir);
+    auto thread = new QThread();
 
-        thread->start();
-    }
+    connect(&_mapper, &DICOMFromFilesToSqlMapper::finished, thread, &QThread::quit);
+
+    connect(progress_dialog, &QProgressDialog::canceled, thread, &QThread::quit);
+
+    connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+    connect(thread, &QThread::finished, &_mapper, [this]() {
+        _mapper.moveToThread(QApplication::instance()->thread());
+    });
+    connect(thread, &QThread::finished, progress_dialog, &QProgressDialog::close);
+    connect(thread, &QThread::started, &_mapper, &DICOMFromFilesToSqlMapper::loadToDataBase);
+
+    _mapper.moveToThread(thread);
+    _mapper.setNeedDeepScan(deep_scan);
+    _mapper.setDicomDir(scan_dir);
+
+    thread->start();
 }

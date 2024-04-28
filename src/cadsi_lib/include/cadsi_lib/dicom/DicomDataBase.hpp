@@ -63,9 +63,7 @@ namespace cadsi_lib::dicom {
             SqlColumn{"patient_birth_date", "DATE", "NULL"},
             SqlColumn{"patient_comments", " VARCHAR(255)", "NULL"}};
 
-        static inline const QStringList patients_table_constraints{{"UNIQUE(patient_name) ON "
-                                                                    "CONFLICT "
-                                                                    "IGNORE"}};
+        static inline const QStringList patients_table_constraints{{"UNIQUE(patient_name, patient_birth_date)"}};
 
         static inline const QString sql_patients_table_create =
             generate_sql_table_creation(patients_table_name, patients_table_columns, patients_table_constraints);
@@ -81,8 +79,7 @@ namespace cadsi_lib::dicom {
             SqlColumn{"preview_picture", "BLOB", "NULL"},
             SqlColumn{"patient_uid", "INTEGER", "NULL"}};
 
-        static inline const QStringList series_table_constraints{{"UNIQUE(series_number) ON CONFLICT "
-                                                                  "IGNORE"},
+        static inline const QStringList series_table_constraints{{"UNIQUE(series_number)"},
                                                                  {"FOREIGN KEY (patient_uid) "
                                                                   "REFERENCES "
                                                                   "patients(patient_uid) ON DELETE "
