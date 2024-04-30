@@ -83,4 +83,17 @@ namespace cadsi_lib::dicom {
     QString DicomDataBase::generate_sql_select_by_column(QStringView table_name, QStringView column_name) {
         return QString("SELECT * FROM %1 WHERE %2=?").arg(table_name, column_name);
     }
+
+    QString DicomDataBase::generate_sql_delete_by_column_for_many_vals(QStringView table_name,
+                                                                       QStringView column_name,
+                                                                       uint num_of_vals) {
+        if (num_of_vals == 0) {
+            return {};
+        }
+        auto condition_str = QString("%1 = ?").arg(column_name);
+        for (auto i : std::views::iota(1, (int)num_of_vals)) {
+            condition_str += QString(" OR %1 = ?").arg(column_name);
+        }
+        return QString("DELETE FROM %1 WHERE %2").arg(table_name, condition_str);
+    }
 }    //namespace cadsi_lib::dicom

@@ -50,7 +50,7 @@ namespace cadsi_lib::dicom {
         void setComments(QString&& comments);
         void setComments(const vtkDICOMValue& comments);
         void setComments(vtkDICOMValue&& comments);
-        [[nodiscard]] QList<DicomSeries> getSeries() const;
+        [[nodiscard]] const QList<DicomSeries>& getSeries() const;
         void addSeries(const QList<DicomSeries>& series);
         void addSeries(QList<DicomSeries>&& series);
         void addSeries(const DicomSeries& series);

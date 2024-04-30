@@ -41,8 +41,8 @@ namespace cadsi_lib::dicom {
             }
             auto& patient = patients.emplaceBack();
             patient.addSeries(std::move(patients_series_res.data));
-            patient.setName(query.value(1).toString());
-            patient.setId(query.value(2).toString());
+            patient.setId(query.value(1).toString());
+            patient.setName(query.value(2).toString());
             patient.setSex(query.value(3).toString());
             patient.setBirthDate(query.value(4).toString());
             patient.setComments(query.value(5).toString());
@@ -136,6 +136,58 @@ namespace cadsi_lib::dicom {
         return {.status{.success = true}, .data = std::move(slices)};
     }
 
+    OperationStatus SqliteDicomDataMapper::deletePatients(QList<QString> patients_uid) {
+        if (_db == nullptr) {
+            return {.success = false, .error_code = DB_NOT_SETTED, .error_message = "database pointer is nullptr"};
+        }
+        auto conn_res = _db->getConnection();
+        if (!conn_res.status.success) {
+            return conn_res.status;
+        }
+        auto conn = conn_res.data;
+
+        QSqlQuery query(conn);
+
+        query.prepare(DicomDataBase::sql_patient_delete_by_unique_for_many_vals(patients_uid.size()));
+        std::ranges::for_each(patients_uid, [&query](auto id) {
+            query.addBindValue(id);
+        });
+
+        if (!query.exec()) {
+            auto error = query.lastError();
+            return {.success = false,
+                    .error_code = static_cast<unsigned int>(error.type()),
+                    .error_message = std::format("deletePatients error: {}", error.text().toStdString())};
+        }
+        return {true};
+    }
+
+    OperationStatus SqliteDicomDataMapper::deleteSeries(QList<QString> series_uid) {
+        if (_db == nullptr) {
+            return {.success = false, .error_code = DB_NOT_SETTED, .error_message = "database pointer is nullptr"};
+        }
+        auto conn_res = _db->getConnection();
+        if (!conn_res.status.success) {
+            return conn_res.status;
+        }
+        auto conn = conn_res.data;
+
+        QSqlQuery query(conn);
+
+        query.prepare(DicomDataBase::sql_series_delete_by_unique_for_many_vals(series_uid.size()));
+        std::ranges::for_each(series_uid, [&query](auto id) {
+            query.addBindValue(id);
+        });
+
+        if (!query.exec()) {
+            auto error = query.lastError();
+            return {.success = false,
+                    .error_code = static_cast<unsigned int>(error.type()),
+                    .error_message = std::format("deleteSeries error: {}", error.text().toStdString())};
+        }
+        return {true};
+    }
+
     OperationStatus SqliteDicomDataMapper::insertPatient(const DicomPatient& patient) {
         return insertPatients(QList{patient});
     }
@@ -174,8 +226,8 @@ namespace cadsi_lib::dicom {
             uint patient_id;
 
             query.prepare(query_str);
-            query.addBindValue(patient.getName());
             query.addBindValue(patient.getId());
+            query.addBindValue(patient.getName());
             query.addBindValue(patient.getSex());
             query.addBindValue(patient.getBirthDateDicomString());
             query.addBindValue(patient.getComments());

@@ -6,31 +6,48 @@
 
 SliceMetadata::SliceMetadata(QWidget* parent) : QWidget(parent) {
     _ui.setupUi(this);
+
+    connect(_ui.currSliceSlider, &QSlider::valueChanged, _ui.currSliceSpinBox, &QSpinBox::setValue);
+    connect(_ui.currSliceSpinBox, &QSpinBox::valueChanged, _ui.currSliceSlider, &QSlider::setValue);
+
+    _ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 }
 
-void SliceMetadata::setData(const cadsi_lib::dicom::DicomSeries& series,
-                            const QList<cadsi_lib::dicom::DicomImage>& slices) {
-    auto shared_meta = series.getMetaCollection();
-    std::ranges::for_each(shared_meta, [this](const auto& elem) {
-        _shared_meta.push_back(DICOMImageMetaDataTableModelObject::fromDicomDataElement(elem));
-    });
-
-    for (const auto& slice : slices) {
-        _slices_paths.push_back(slice.getImageFilePath());
-
-        auto slice_meta = slice.getMetaCollection();
-        auto& slices_meta_objects = _slices_meta.emplaceBack();
-
-        std::ranges::for_each(slice_meta, [&slices_meta_objects](const auto& elem) {
-            slices_meta_objects.push_back(DICOMImageMetaDataTableModelObject::fromDicomDataElement(elem));
-        });
-    }
+void SliceMetadata::on_currSliceSlider_valueChanged(int val) {
+    setCurrSlice(val);
 }
 
 void SliceMetadata::setCurrSlice(int id) {
-    if (id < 0 || id > _slices_meta.size()) {
+    auto model = dynamic_cast<DICOMSliceTableModel*>(_ui.tableView->model());
+    if (model == nullptr) {
         return;
     }
-    _ui.filePathLabel->setText(_slices_paths.value(id));
+    model->setSliceInd(id);
+}
 
+void SliceMetadata::setModel(DICOMSliceTableModel* model) {
+    _ui.tableView->setModel(model);
+    connect(model, &DICOMSliceTableModel::currSliceIndChanged, this, &SliceMetadata::onCurrSliceIndChanged);
+    connect(model, &DICOMSliceTableModel::currSeriesIndChanged, this, &SliceMetadata::onCurrSeriesIndChanged);
+}
+
+void SliceMetadata::onCurrSliceIndChanged() {
+    auto model = _ui.tableView->model();
+    if (model == nullptr) {
+        return;
+    }
+    _ui.filePathLabel->setText(model->data({}, DICOMSliceTableModel::CURR_FILE_NAME_ROLE).toString());
+}
+
+void SliceMetadata::onCurrSeriesIndChanged(int new_ind) {
+    int slices_last_index;
+    if(new_ind < 0){
+        slices_last_index = 0;
+    }
+    else {
+        slices_last_index = _ui.tableView->model()->data({}, DICOMSliceTableModel::NUM_OF_SLICES_ROLE).toInt() - 1;
+    }
+    _ui.currSliceSlider->setMaximum(slices_last_index);
+    _ui.currSliceSpinBox->setMaximum(slices_last_index);
+    _ui.tableView->resizeColumnsToContents();
 }

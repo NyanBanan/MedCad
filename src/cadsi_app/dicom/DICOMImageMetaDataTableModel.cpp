@@ -60,7 +60,7 @@ QVariant DICOMImageMetaDataTableModel::headerData(int section, Qt::Orientation o
     }
 }
 
-void DICOMImageMetaDataTableModel::pushBack(DICOMImageMetaDataTableModelObject&& obj) {
+void DICOMImageMetaDataTableModel::pushBack(DICOMSliceMetaDataObject&& obj) {
     auto new_elem_pos = (int)_objects.size();
     beginInsertRows({}, new_elem_pos, new_elem_pos);
     _objects.push_back(obj);

@@ -16,7 +16,7 @@ namespace cadsi_lib::dicom {
     public:
         virtual ~DicomMetaDataHashCollection() = default;
 
-        [[nodiscard]] QHash<vtkDICOMTag, vtkDICOMDataElement> getMetaCollection() const;
+        [[nodiscard]] const QHash<vtkDICOMTag, vtkDICOMDataElement>& getMetaCollection() const;
         [[nodiscard]] vtkDICOMDataElement getMeta(const vtkDICOMTag& tag) const;
         void setMeta(const vtkDICOMDataElement& data);
         void setMeta(vtkDICOMDataElement&& data);

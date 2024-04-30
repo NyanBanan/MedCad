@@ -203,7 +203,7 @@ namespace cadsi_lib::dicom {
         _images.assign(images.begin(), images.end());
     }
 
-    QList<DicomImage> DicomSeries::getImages() const {
+    const QList<DicomImage>& DicomSeries::getImages() const {
         return _images;
     }
 

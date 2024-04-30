@@ -37,6 +37,9 @@ namespace cadsi_lib::dicom {
         OperationStatus insertSlice(uint series_uid, const DicomImage& slice);
         OperationStatus insertSlices(uint series_uid, const QList<DicomImage>& slices);
 
+        OperationStatus deletePatients(QList<QString> patients_uid) override;
+        OperationStatus deleteSeries(QList<QString> series_uid) override;
+
     private:
         /*!
          \brief methods with QSqlDatabase& conn parameter are necessary to reduce number of calls _db->getConnection() and success checkouts of this call

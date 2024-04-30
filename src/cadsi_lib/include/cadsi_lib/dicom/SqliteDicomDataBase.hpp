@@ -25,6 +25,12 @@ namespace cadsi_lib::dicom {
         OperationStatus createOrConnect(QString path) override;
         Result<QSqlDatabase> getConnection() const override;
     private:
+        /*!
+         * In SQLite foreign keys offed by default
+         * For turning them on exec "PRAGMA foreign_keys=on" is required for every connection
+         */
+        OperationStatus enableForeignKeys();
+
         QSqlDatabase _connection;
     };
 }

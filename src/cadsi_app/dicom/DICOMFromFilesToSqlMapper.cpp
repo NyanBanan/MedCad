@@ -4,6 +4,8 @@
 
 #include "DICOMFromFilesToSqlMapper.hpp"
 
+#include <utility>
+
 DICOMFromFilesToSqlMapper::DICOMFromFilesToSqlMapper(QObject* parent) : QObject(parent) {
     connect(this, &DICOMFromFilesToSqlMapper::error, this, &DICOMFromFilesToSqlMapper::finished);
 }
@@ -42,6 +44,24 @@ void DICOMFromFilesToSqlMapper::loadToDataBase() {
     loadFromSql();
 }
 
+void DICOMFromFilesToSqlMapper::deletePatients(QList<QString> patients_id) {
+    auto status = _db_mapper.deletePatients(std::move(patients_id));
+    if (status.success) {
+        loadFromSql();
+    } else {
+        error(QString::fromStdString(status.error_message));
+    }
+}
+
+void DICOMFromFilesToSqlMapper::deleteSeries(QList<QString> series_id) {
+    auto status = _db_mapper.deleteSeries(std::move(series_id));
+    if (status.success) {
+        loadFromSql();
+    } else {
+        error(QString::fromStdString(status.error_message));
+    }
+}
+
 void DICOMFromFilesToSqlMapper::loadFromSql() {
     updateConnection();
 
@@ -50,7 +70,7 @@ void DICOMFromFilesToSqlMapper::loadFromSql() {
         emit error(QString::fromStdString(all_patients_res.status.error_message));
         return;
     }
-    emit updatedData(all_patients_res.data);
+    emit dataUpdated(all_patients_res.data);
     emit finished();
 }
 

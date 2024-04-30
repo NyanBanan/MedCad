@@ -5,7 +5,7 @@
 #include "cadsi_lib/dicom/DicomMetaDataHashCollection.hpp"
 
 namespace cadsi_lib::dicom {
-    QHash<vtkDICOMTag, vtkDICOMDataElement> DicomMetaDataHashCollection::getMetaCollection() const {
+    const QHash<vtkDICOMTag, vtkDICOMDataElement>& DicomMetaDataHashCollection::getMetaCollection() const {
         return _meta_collection;
     }
 

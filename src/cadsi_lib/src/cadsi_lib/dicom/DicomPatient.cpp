@@ -164,7 +164,7 @@ namespace cadsi_lib::dicom {
         setMeta(std::move(data_elem));
     }
 
-    QList<DicomSeries> DicomPatient::getSeries() const {
+    const QList<DicomSeries>& DicomPatient::getSeries() const {
         return _series;
     }
 

@@ -57,13 +57,13 @@ namespace cadsi_lib::dicom {
 
         static inline const QList patients_table_columns{
             SqlColumn{"patient_uid", "INTEGER", "PRIMARY KEY AUTOINCREMENT NOT NULL"},
-            SqlColumn{"patient_name", "VARCHAR(255)", "NULL"},
             SqlColumn{"patient_id", "VARCHAR(255)", "NULL"},
+            SqlColumn{"patient_name", "VARCHAR(255)", "NULL"},
             SqlColumn{"patient_sex", " VARCHAR(255)", " NULL"},
             SqlColumn{"patient_birth_date", "DATE", "NULL"},
             SqlColumn{"patient_comments", " VARCHAR(255)", "NULL"}};
 
-        static inline const QStringList patients_table_constraints{{"UNIQUE(patient_name, patient_birth_date)"}};
+        static inline const QStringList patients_table_constraints{{"UNIQUE(patient_id)"}};
 
         static inline const QString sql_patients_table_create =
             generate_sql_table_creation(patients_table_name, patients_table_columns, patients_table_constraints);
@@ -156,6 +156,26 @@ namespace cadsi_lib::dicom {
             generate_sql_select_by_column(series_table_name, patients_table_columns[0].name);
         static inline const QString sql_slices_select_by_series_uid =
             generate_sql_select_by_column(slices_table_name, series_table_columns[0].name);
+
+        static QString generate_sql_delete_by_column_for_many_vals(QStringView table_name,
+                                                                   QStringView column_name,
+                                                                   uint num_of_vals);
+
+        static inline const auto sql_patient_delete_by_unique_for_many_vals = [](uint num_of_vals) {
+            return generate_sql_delete_by_column_for_many_vals(patients_table_name,
+                                                               patients_table_columns[1].name,
+                                                               num_of_vals);
+        };
+        static inline const auto sql_series_delete_by_unique_for_many_vals = [](uint num_of_vals) {
+            return generate_sql_delete_by_column_for_many_vals(series_table_name,
+                                                               series_table_columns[1].name,
+                                                               num_of_vals);
+        };
+        static inline const auto sql_slices_delete_by_unique_for_many_vals = [](uint num_of_vals) {
+            return generate_sql_delete_by_column_for_many_vals(slices_table_name,
+                                                               slices_table_columns[1].name,
+                                                               num_of_vals);
+        };
     };
 }    //namespace cadsi_lib::dicom
 #endif    //CADSI_DICOMDATABASE_HPP

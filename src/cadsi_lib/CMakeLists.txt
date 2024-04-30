@@ -67,7 +67,7 @@ add_library(cadsi_lib
         include/cadsi_lib/dicom/PreviewImage.hpp
         src/cadsi_lib/volumes/providers/GlobalVolumeProvider.cpp
         include/cadsi_lib/volumes/providers/GlobalVolumeProvider.hpp
-        include/cadsi_lib/dicom/DicomSqlTablesInspector.cpp
+        src/cadsi_lib/dicom/DicomSqlTablesInspector.cpp
         include/cadsi_lib/dicom/DicomSqlTablesInspector.hpp
         src/cadsi_lib/colors/providers/GlobalColorsProvider.cpp
         include/cadsi_lib/colors/providers/GlobalColorsProvider.hpp

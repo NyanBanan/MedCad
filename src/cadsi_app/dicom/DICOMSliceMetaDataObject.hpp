@@ -2,8 +2,8 @@
 // Created by nyanbanan on 14.04.2024.
 //
 
-#ifndef CADSI_DICOMIMAGEMETADATATABLEMODELOBJECT_HPP
-#define CADSI_DICOMIMAGEMETADATATABLEMODELOBJECT_HPP
+#ifndef CADSI_DICOMSLICEMETADATAOBJECT_HPP
+#define CADSI_DICOMSLICEMETADATAOBJECT_HPP
 
 #include <sstream>
 #include <QString>
@@ -11,7 +11,7 @@
 #include <vtkDICOMDictionary.h>
 
 
-    class DICOMImageMetaDataTableModelObject {
+    class DICOMSliceMetaDataObject {
     public:
         void setTag(const QString& tag);
         QString getTag() const;
@@ -22,8 +22,8 @@
         void setVR(const QString& vr);
         QString getVR() const;
 
-        static DICOMImageMetaDataTableModelObject fromDicomDataElement(const vtkDICOMDataElement& data);
-        static DICOMImageMetaDataTableModelObject fromDicomDataElement(vtkDICOMDataElement&& data);
+        static DICOMSliceMetaDataObject fromDicomDataElement(const vtkDICOMDataElement& data);
+        static DICOMSliceMetaDataObject fromDicomDataElement(vtkDICOMDataElement&& data);
 
     private:
         QString _tag;
@@ -32,4 +32,4 @@
         QString _vr;
     };
 
-#endif    //CADSI_DICOMIMAGEMETADATATABLEMODELOBJECT_HPP
+#endif    //CADSI_DICOMSLICEMETADATAOBJECT_HPP

@@ -6,9 +6,8 @@
 #define CADSI_SLICEMETADATA_HPP
 
 #include <QWidget>
-#include <cadsi_lib/dicom/DicomSeries.hpp>
 
-#include "dicom/DICOMImageMetaDataTableModelObject.hpp"
+#include "dicom/models/DICOMSliceTableModel.hpp"
 #include "ui_files/ui_slicemetadata.h"
 
 class SliceMetadata : public QWidget {
@@ -16,14 +15,14 @@ class SliceMetadata : public QWidget {
 public:
     SliceMetadata(QWidget* parent);
 public slots:
-    void setData(const cadsi_lib::dicom::DicomSeries& series, const QList<cadsi_lib::dicom::DicomImage>& slices);
+    void onCurrSliceIndChanged();
+    void onCurrSeriesIndChanged(int new_ind);
+    void setModel(DICOMSliceTableModel* model);
     void setCurrSlice(int id);
 
+    void on_currSliceSlider_valueChanged(int val);
+//TODO: Possibly lags when resizing, look in release build and think what you can do
 private:
-    QList<DICOMImageMetaDataTableModelObject> _shared_meta;
-    QList<QString> _slices_paths;
-    QList<QList<DICOMImageMetaDataTableModelObject>> _slices_meta;
-
     Ui::SliceMetadata _ui;
 };
 

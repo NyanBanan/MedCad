@@ -22,9 +22,11 @@ public:
 public slots:
     void loadToDataBase();
     void loadFromSql();
+    void deletePatients(QList<QString> patients_id);
+    void deleteSeries(QList<QString> series_id);
 signals:
     void error(const QString& error_message);
-    void updatedData(QList<cadsi_lib::dicom::DicomPatient> patients);
+    void dataUpdated(QList<cadsi_lib::dicom::DicomPatient> patients);
     void finished();
 private:
     void updateConnection();

@@ -628,19 +628,25 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QTableView" name="tableViewPatients">
+       <widget class="QTableView" name="patientsTableView">
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
         </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="verticalHeaderCascadingSectionResizes">
+         <bool>false</bool>
+        </attribute>
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="seriesListWidget">
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
+       <widget class="QListView" name="seriesListView">
         <property name="selectionMode">
          <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
         </property>
         <property name="iconSize">
          <size>
@@ -648,17 +654,8 @@
           <height>120</height>
          </size>
         </property>
-        <property name="movement">
-         <enum>QListView::Static</enum>
-        </property>
         <property name="flow">
          <enum>QListView::LeftToRight</enum>
-        </property>
-        <property name="isWrapping" stdset="0">
-         <bool>false</bool>
-        </property>
-        <property name="viewMode">
-         <enum>QListView::IconMode</enum>
         </property>
        </widget>
       </item>

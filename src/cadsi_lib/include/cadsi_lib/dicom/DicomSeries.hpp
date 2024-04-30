@@ -65,7 +65,7 @@ namespace cadsi_lib::dicom {
         [[nodiscard]] QImage getPreview() const;
         void setPreview(const QImage& preview_image);
         void setPreview(QImage&& preview_image);
-        [[nodiscard]] QList<DicomImage> getImages() const;
+        [[nodiscard]] const QList<DicomImage>& getImages() const;
         void assignImages(QList<DicomImage> images);
         void addImage(const DicomImage& image);
         void addImage(DicomImage&& image);

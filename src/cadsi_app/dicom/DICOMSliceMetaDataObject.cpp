@@ -2,42 +2,42 @@
 // Created by nyanbanan on 14.04.2024.
 //
 
-#include "DICOMImageMetaDataTableModelObject.hpp"
+#include "DICOMSliceMetaDataObject.hpp"
 
-void DICOMImageMetaDataTableModelObject::setTag(const QString& tag) {
+void DICOMSliceMetaDataObject::setTag(const QString& tag) {
     _tag = tag;
 }
 
-QString DICOMImageMetaDataTableModelObject::getTag() const {
+QString DICOMSliceMetaDataObject::getTag() const {
     return _tag;
 }
 
-void DICOMImageMetaDataTableModelObject::setName(const QString& name) {
+void DICOMSliceMetaDataObject::setName(const QString& name) {
     _name = name;
 }
 
-QString DICOMImageMetaDataTableModelObject::getName() const {
+QString DICOMSliceMetaDataObject::getName() const {
     return _name;
 }
 
-void DICOMImageMetaDataTableModelObject::setVal(const QString& val) {
+void DICOMSliceMetaDataObject::setVal(const QString& val) {
     _val = val;
 }
 
-QString DICOMImageMetaDataTableModelObject::getVal() const {
+QString DICOMSliceMetaDataObject::getVal() const {
     return _val;
 }
 
-void DICOMImageMetaDataTableModelObject::setVR(const QString& vr) {
+void DICOMSliceMetaDataObject::setVR(const QString& vr) {
     _vr = vr;
 }
 
-QString DICOMImageMetaDataTableModelObject::getVR() const {
+QString DICOMSliceMetaDataObject::getVR() const {
     return _vr;
 }
 
-DICOMImageMetaDataTableModelObject DICOMImageMetaDataTableModelObject::fromDicomDataElement(const vtkDICOMDataElement& data) {
-    DICOMImageMetaDataTableModelObject obj;
+DICOMSliceMetaDataObject DICOMSliceMetaDataObject::fromDicomDataElement(const vtkDICOMDataElement& data) {
+    DICOMSliceMetaDataObject obj;
     auto tag = data.GetTag();
     std::stringstream tag_to_str;
     tag_to_str << tag;
@@ -55,8 +55,8 @@ DICOMImageMetaDataTableModelObject DICOMImageMetaDataTableModelObject::fromDicom
     return obj;
 }
 
-DICOMImageMetaDataTableModelObject DICOMImageMetaDataTableModelObject::fromDicomDataElement(vtkDICOMDataElement&& data) {
-    DICOMImageMetaDataTableModelObject obj;
+DICOMSliceMetaDataObject DICOMSliceMetaDataObject::fromDicomDataElement(vtkDICOMDataElement&& data) {
+    DICOMSliceMetaDataObject obj;
     auto tag = data.GetTag();
     std::stringstream tag_to_str;
     tag_to_str << tag;

@@ -6,8 +6,8 @@
 #define CADSI_DICOMDATABASEDIALOG_HPP
 
 #include <QDialog>
-#include <QErrorMessage>
 #include <QFileDialog>
+#include <QModelIndex>
 #include <QProcessEnvironment>
 #include <QProgressDialog>
 #include <QThread>
@@ -17,27 +17,39 @@
 #include "../ui_files/ui_dicomdatabasedialog.h"
 #include "DICOMFromFilesToSqlMapper.hpp"
 #include "DICOMImageMetaDataTableModel.hpp"
-#include "DICOMPatientItemModel.hpp"
 #include "DICOMScanDialog.hpp"
 #include "DICOMSeriesListWidgetItem.hpp"
+#include "../ErrorMessageBox.hpp"
+#include "models/DICOMPatientTableModel.hpp"
+#include "models/DICOMSeriesListModel.hpp"
+#include "models/DICOMSliceTableModel.hpp"
 
 class DICOMDatabaseDialog : public QDialog {
     Q_OBJECT
 public:
     DICOMDatabaseDialog(QWidget* parent = nullptr);
+
+signals:
+    void dicomLoaded(int patient_id, int series_id);
 public slots:
     void patientSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
-    void updatePatientsData(const QList<cadsi_lib::dicom::DicomPatient>& patients);
+    void seriesSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
     void showErrorMessage(const QString& error_message);
     void scanDicomDir(bool deep_scan, const QString& scan_dir);
     void on_scanPushButton_pressed();
+    void on_importPushButton_pressed();
+    void on_deletePushButton_pressed();
+
+    void setDICOMSharedData(QSharedPointer<DICOMData> dicom_data);
 
 private:
     void initDataBaseFile();
 
     QString _db_file;
-    QErrorMessage _error_win;
-    DICOMPatientItemModel _model;
+    ErrorMessageBox _error_win;
+    DICOMPatientTableModel* _patient_model;
+    DICOMSeriesListModel* _series_model;
+    DICOMSliceTableModel* _slices_model;
     DICOMFromFilesToSqlMapper _mapper;
     Ui::DICOMDatabaseDialog _ui;
 };

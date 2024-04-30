@@ -2,7 +2,7 @@
 // Created by nyanbanan on 23.04.2024.
 //
 
-#include "DicomSqlTablesInspector.hpp"
+#include "cadsi_lib/dicom/DicomSqlTablesInspector.hpp"
 
 namespace cadsi_lib::dicom {
 

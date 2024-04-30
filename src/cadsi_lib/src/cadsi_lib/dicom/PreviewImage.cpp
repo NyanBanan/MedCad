@@ -15,12 +15,8 @@ namespace cadsi_lib::dicom {
 
         vtkNew<volumes::VolumeObject> actor;
         actor->GetMapper()->SetInputConnection(data_input);
-        actor->SetUserMatrix(patient_matrix);
         actor->RotateX(-90);
-        actor->SetPosition(0, 30, -300);
-
-        auto camera = renderer->GetActiveCamera();
-        camera->SetViewUp(actor->GetPosition());
+        actor->SetUserMatrix(patient_matrix);
 
         renderer->AddActor(actor);
 

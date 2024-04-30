@@ -10,6 +10,21 @@ PatientCard::PatientCard(QWidget* parent) : QWidget(parent) {
     _ui.goNextButton->setEnabled(false);
     _ui.photoLabel->setPixmap(QPixmap(":/icons/photo.jpg").scaled(200, 200, Qt::KeepAspectRatio));
     _ui.previewLabel->setPixmap(QPixmap(":/icons/photo.jpg").scaled(300, 300, Qt::KeepAspectRatio));
+
+    _ui.widgetSlices->setModel(&_slices_model);
+
+    _dicom_data.reset(new DICOMData);
+
+    _slices_model.setDicomData(_dicom_data);
+}
+
+void PatientCard::onDicomLoaded(int patient_id, int series_id) {
+    _slices_model.setPatientInd(patient_id);
+    _slices_model.setSeriesInd(series_id);
+
+    auto preview_image = _dicom_data->getSeries(patient_id, series_id).getPreview().scaled(300, 300);
+
+    _ui.previewLabel->setPixmap(QPixmap::fromImage(preview_image));
 }
 
 void PatientCard::on_changePhotoButton_pressed() {
@@ -33,6 +48,9 @@ void PatientCard::on_birthdateDateTimeEdit_dateChanged(QDate born) {
 void PatientCard::on_dicomPushButton_pressed() {
     if (_dicom_dialog == nullptr) {
         _dicom_dialog = new DICOMDatabaseDialog(this);
+        _dicom_dialog->setDICOMSharedData(_dicom_data);
+
+        connect(_dicom_dialog, &DICOMDatabaseDialog::dicomLoaded, this, &PatientCard::onDicomLoaded);
     }
     _dicom_dialog->show();
 }

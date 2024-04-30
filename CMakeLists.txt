@@ -2,9 +2,13 @@ cmake_minimum_required(VERSION 3.5)
 project(cadsi)
 
 set(CMAKE_CXX_STANDARD 20)
-
-set(CMAKE_PREFIX_PATH "C:\\Qt\\Qt-6.6.3-debug\\lib\\cmake")
-
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_PREFIX_PATH "C:\\Qt\\Qt-6.6.3-debug\\lib\\cmake")
+    message(STATUS "BUILD TYPE DEBUG")
+else ()
+    set(CMAKE_PREFIX_PATH "C:\\Qt\\Qt-6.6.3\\lib\\cmake")
+    message(STATUS "BUILD TYPE RELEASE")
+endif ()
 cmake_policy(SET CMP0071 NEW)
 
 set(CMAKE_AUTOMOC ON)
@@ -14,7 +18,7 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Test Qml Quick)
 find_package(VTK REQUIRED)
 
-qt_add_executable(cadsi src/main.cpp resources/resources.qrc
+qt_add_executable(cadsi src/cadsi_app/main.cpp resources/resources.qrc
         src/cadsi_app/ui_files/patientcard.ui
         src/cadsi_app/ui_files/slicemetadata.ui
         src/cadsi_app/PatientCard.cpp
@@ -23,10 +27,10 @@ qt_add_executable(cadsi src/main.cpp resources/resources.qrc
         src/cadsi_app/dicom/DICOMDatabaseDialog.hpp
         src/cadsi_app/dicom/DICOMImageMetaDataTableModel.cpp
         src/cadsi_app/dicom/DICOMImageMetaDataTableModel.hpp
-        src/cadsi_app/dicom/DICOMImageMetaDataTableModelObject.cpp
-        src/cadsi_app/dicom/DICOMImageMetaDataTableModelObject.hpp
-        src/cadsi_app/dicom/DICOMPatientItemModel.cpp
-        src/cadsi_app/dicom/DICOMPatientItemModel.hpp
+        src/cadsi_app/dicom/DICOMSliceMetaDataObject.cpp
+        src/cadsi_app/dicom/DICOMSliceMetaDataObject.hpp
+        src/cadsi_app/dicom/models/DICOMPatientTableModel.cpp
+        src/cadsi_app/dicom/models/DICOMPatientTableModel.hpp
         src/cadsi_app/dicom/DICOMFromFilesToSqlMapper.cpp
         src/cadsi_app/dicom/DICOMFromFilesToSqlMapper.hpp
         src/cadsi_app/dicom/CadsiLibDicomDeclareMetatype.hpp
@@ -35,7 +39,18 @@ qt_add_executable(cadsi src/main.cpp resources/resources.qrc
         src/cadsi_app/GlobalSettingsConfigurator.cpp
         src/cadsi_app/GlobalSettingsConfigurator.hpp
         src/cadsi_app/dicom/DICOMScanDialog.cpp
-        src/cadsi_app/dicom/DICOMScanDialog.hpp)
+        src/cadsi_app/dicom/DICOMScanDialog.hpp
+        src/cadsi_app/dicom/models/DICOMData.cpp
+        src/cadsi_app/dicom/models/DICOMData.hpp
+        src/cadsi_app/dicom/models/DICOMSeriesListModel.cpp
+        src/cadsi_app/dicom/models/DICOMSeriesListModel.hpp
+        src/cadsi_app/dicom/models/DICOMModel.cpp
+        src/cadsi_app/dicom/models/DICOMModel.hpp
+        src/cadsi_app/dicom/models/DICOMSliceTableModel.cpp
+        src/cadsi_app/dicom/models/DICOMSliceTableModel.hpp
+        src/cadsi_app/ErrorMessageBox.cpp
+        src/cadsi_app/ErrorMessageBox.hpp
+)
 
 if (NOT DEFINED CMAKE_UTILS_FILE)
     set(CMAKE_UTILS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/UtilFunctions.cmake")
