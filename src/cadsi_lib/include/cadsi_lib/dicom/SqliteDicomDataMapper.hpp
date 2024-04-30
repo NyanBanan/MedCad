@@ -12,6 +12,8 @@
 #include <vtkDICOMMetaData.h>
 #include <vtkDICOMReader.h>
 #include <vtkNew.h>
+#include <vtkStringArray.h>
+#include <vtkSmartPointer.h>
 
 #include "SqliteDicomDataBase.hpp"
 #include "providers/DicomProvider.hpp"

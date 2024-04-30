@@ -9,6 +9,8 @@
 #include <QList>
 #include <QTime>
 #include <QImage>
+#include <vtkDICOMMetaData.h>
+#include <ranges>
 
 #include "DicomImage.hpp"
 #include "DicomMetaDataHashCollection.hpp"
@@ -65,6 +67,7 @@ namespace cadsi_lib::dicom {
         [[nodiscard]] QImage getPreview() const;
         void setPreview(const QImage& preview_image);
         void setPreview(QImage&& preview_image);
+        void parseMetaData(vtkDICOMMetaData* meta);
         [[nodiscard]] const QList<DicomImage>& getImages() const;
         void assignImages(QList<DicomImage> images);
         void addImage(const DicomImage& image);

@@ -83,30 +83,22 @@ namespace cadsi_lib::dicom {
             if (slices.empty()) {
                 continue;
             }
-            auto first_image = slices[0];
+
+            vtkNew<vtkStringArray> file_names;
+            std::ranges::for_each(slices, [&file_names](const auto& slice) {
+                file_names->InsertNextValue(slice.getImageFilePath().toStdString());
+            });
 
             vtkNew<vtkDICOMReader> series_meta_data_reader;
 
-            series_meta_data_reader->SetFileName(first_image.getImageFilePath().toStdString().c_str());
+            series_meta_data_reader->SetFileNames(file_names);
             series_meta_data_reader->Update();
+
+            curr_series.assignImages(slices);
 
             auto meta = series_meta_data_reader->GetMetaData();
 
-            for (auto iter = meta->Begin(); iter != meta->End(); ++iter) {
-                if (iter->IsPerInstance()) {
-                    auto instance_num = iter->GetNumberOfInstances();
-                    if (slices.size() < instance_num) {
-                        instance_num = (int)slices.size();
-                    }
-                    for (auto inst : std::views::iota(0, instance_num)) {
-                        slices[inst].setMeta(*iter);
-                    }
-                } else {
-                    curr_series.setMeta(*iter);
-                }
-            }
-
-            curr_series.assignImages(slices);
+            curr_series.parseMetaData(meta);
         }
 
         return {.status{.success = true}, .data = std::move(series)};
@@ -122,7 +114,8 @@ namespace cadsi_lib::dicom {
             auto error = series_query.lastError();
             return {.status = {.success = false,
                                .error_code = static_cast<unsigned int>(error.type()),
-                               .error_message = std::format("selectAllSlicesForSeries with id - {} error: {}",
+                               .error_message = std::format("selectAllSlicesForSeries with id - {} "
+                                                            "error: {}",
                                                             series_uid,
                                                             error.text().toStdString())}};
         }

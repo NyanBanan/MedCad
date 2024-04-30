@@ -199,6 +199,22 @@ namespace cadsi_lib::dicom {
         _preview_image = preview_image;
     }
 
+    void DicomSeries::parseMetaData(vtkDICOMMetaData* meta) {
+        for (auto iter = meta->Begin(); iter != meta->End(); ++iter) {
+            if (iter->IsPerInstance()) {
+                auto instance_num = iter->GetNumberOfInstances();
+                if (_images.size() < instance_num) {
+                    instance_num = (int)_images.size();
+                }
+                for (auto inst : std::views::iota(0, instance_num)) {
+                    _images[inst].setMeta(iter->GetTag(), iter->GetValue(inst));
+                }
+            } else {
+                setMeta(*iter);
+            }
+        }
+    }
+
     void DicomSeries::assignImages(QList<DicomImage> images) {
         _images.assign(images.begin(), images.end());
     }

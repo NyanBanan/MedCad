@@ -65,24 +65,11 @@ namespace cadsi_lib::dicom::providers {
 
                         auto preview = createPreviewImage(series_data_reader);
                         curr_series.setPreview(std::move(preview));
+                        curr_series.assignImages(images);
 
                         auto meta = series_data_reader->GetMetaData();
 
-                        for (auto iter = meta->Begin(); iter != meta->End(); ++iter) {
-                            if (iter->IsPerInstance()) {
-                                auto instance_num = iter->GetNumberOfInstances();
-                                if (images.size() < instance_num) {
-                                    instance_num = (int)images.size();
-                                }
-                                for (auto inst : std::views::iota(0, instance_num)) {
-                                    images[inst].setMeta(*iter);
-                                }
-                            } else {
-                                curr_series.setMeta(iter->GetTag(), iter->GetValue());
-                            }
-                        }
-
-                        curr_series.assignImages(images);
+                        curr_series.parseMetaData(meta);
                     }
                 }
             }
