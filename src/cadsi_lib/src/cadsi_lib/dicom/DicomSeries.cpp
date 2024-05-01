@@ -36,7 +36,7 @@ namespace cadsi_lib::dicom {
     }
 
     QString DicomSeries::getUid() const {
-        return QString::fromStdString(getMeta(DC::SeriesInstanceUID).GetValue().AsString());
+        return QString::fromStdString(getMeta(DC::SeriesInstanceUID).getValue().AsString());
     }
 
     void DicomSeries::setUid(const QString& uid) {
@@ -50,21 +50,21 @@ namespace cadsi_lib::dicom {
     }
 
     void DicomSeries::setUid(const vtkDICOMValue& uid) {
-        vtkDICOMDataElement data_elem(DC::SeriesInstanceUID, uid);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::SeriesInstanceUID);
+        setMeta(dict_entry, uid);
     }
 
     void DicomSeries::setUid(vtkDICOMValue&& uid) {
-        vtkDICOMDataElement data_elem(DC::SeriesInstanceUID, uid);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::SeriesInstanceUID);
+        setMeta(dict_entry, uid);
     }
 
     QDate DicomSeries::getDate() const {
-        return QDate::fromString(QString::fromStdString(getMeta(DC::SeriesDate).GetValue().AsString()), "yyyyMMdd");
+        return QDate::fromString(QString::fromStdString(getMeta(DC::SeriesDate).getValue().AsString()), "yyyyMMdd");
     }
 
     QString DicomSeries::getDateString() const {
-        return QString::fromStdString(getMeta(DC::SeriesDate).GetValue().AsString());
+        return QString::fromStdString(getMeta(DC::SeriesDate).getValue().AsString());
     }
 
     void DicomSeries::setDate(const QDate& date) {
@@ -78,21 +78,21 @@ namespace cadsi_lib::dicom {
     }
 
     void DicomSeries::setDate(const vtkDICOMValue& date) {
-        vtkDICOMDataElement data_elem(DC::SeriesDate, date);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::SeriesDate);
+        setMeta(dict_entry, date);
     }
 
     void DicomSeries::setDate(vtkDICOMValue&& date) {
-        vtkDICOMDataElement data_elem(DC::SeriesDate, date);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::SeriesDate);
+        setMeta(dict_entry, date);
     }
 
     QTime DicomSeries::getTime() const {
-        return QTime::fromString(QString::fromStdString(getMeta(DC::SeriesTime).GetValue().AsString()), "hhmmss");
+        return QTime::fromString(QString::fromStdString(getMeta(DC::SeriesTime).getValue().AsString()), "hhmmss");
     }
 
     QString DicomSeries::getTimeString() const {
-        return QString::fromStdString(getMeta(DC::SeriesTime).GetValue().AsString());
+        return QString::fromStdString(getMeta(DC::SeriesTime).getValue().AsString());
     }
 
     void DicomSeries::setTime(const QTime& time) {
@@ -106,17 +106,17 @@ namespace cadsi_lib::dicom {
     }
 
     void DicomSeries::setTime(const vtkDICOMValue& time) {
-        vtkDICOMDataElement data_elem(DC::SeriesTime, time);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::SeriesTime);
+        setMeta(dict_entry, time);
     }
 
     void DicomSeries::setTime(vtkDICOMValue&& time) {
-        vtkDICOMDataElement data_elem(DC::SeriesTime, time);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::SeriesTime);
+        setMeta(dict_entry, time);
     }
 
     QString DicomSeries::getDescription() const {
-        return QString::fromStdString(getMeta(DC::SeriesDescription).GetValue().AsString());
+        return QString::fromStdString(getMeta(DC::SeriesDescription).getValue().AsString());
     }
 
     void DicomSeries::setDescription(const QString& description) {
@@ -130,17 +130,17 @@ namespace cadsi_lib::dicom {
     }
 
     void DicomSeries::setDescription(const vtkDICOMValue& description) {
-        vtkDICOMDataElement data_elem(DC::SeriesDescription, description);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::SeriesDescription);
+        setMeta(dict_entry, description);
     }
 
     void DicomSeries::setDescription(vtkDICOMValue&& description) {
-        vtkDICOMDataElement data_elem(DC::SeriesDescription, description);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::SeriesDescription);
+        setMeta(dict_entry, description);
     }
 
     QString DicomSeries::getModality() const {
-        return QString::fromStdString(getMeta(DC::Modality).GetValue().AsString());
+        return QString::fromStdString(getMeta(DC::Modality).getValue().AsString());
     }
 
     void DicomSeries::setModality(const QString& modality) {
@@ -154,17 +154,17 @@ namespace cadsi_lib::dicom {
     }
 
     void DicomSeries::setModality(const vtkDICOMValue& modality) {
-        vtkDICOMDataElement data_elem(DC::Modality, modality);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::Modality);
+        setMeta(dict_entry, modality);
     }
 
     void DicomSeries::setModality(vtkDICOMValue&& modality) {
-        vtkDICOMDataElement data_elem(DC::Modality, modality);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::Modality);
+        setMeta(dict_entry, modality);
     }
 
     QString DicomSeries::getInstitutionName() const {
-        return QString::fromStdString(getMeta(DC::InstitutionName).GetValue().AsString());
+        return QString::fromStdString(getMeta(DC::InstitutionName).getValue().AsString());
     }
 
     void DicomSeries::setInstitutionName(const QString& institutionName) {
@@ -178,13 +178,13 @@ namespace cadsi_lib::dicom {
     }
 
     void DicomSeries::setInstitutionName(const vtkDICOMValue& institutionName) {
-        vtkDICOMDataElement data_elem(DC::InstitutionName, institutionName);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::InstitutionName);
+        setMeta(dict_entry, institutionName);
     }
 
     void DicomSeries::setInstitutionName(vtkDICOMValue&& institutionName) {
-        vtkDICOMDataElement data_elem(DC::InstitutionName, institutionName);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::InstitutionName);
+        setMeta(dict_entry, institutionName);
     }
 
     QImage DicomSeries::getPreview() const {
@@ -201,16 +201,17 @@ namespace cadsi_lib::dicom {
 
     void DicomSeries::parseMetaData(vtkDICOMMetaData* meta) {
         for (auto iter = meta->Begin(); iter != meta->End(); ++iter) {
+            auto dict_entry = meta->FindDictEntry(iter->GetTag());
             if (iter->IsPerInstance()) {
                 auto instance_num = iter->GetNumberOfInstances();
                 if (_images.size() < instance_num) {
                     instance_num = (int)_images.size();
                 }
                 for (auto inst : std::views::iota(0, instance_num)) {
-                    _images[inst].setMeta(iter->GetTag(), iter->GetValue(inst));
+                    _images[inst].setMeta(dict_entry, iter->GetValue(inst));
                 }
             } else {
-                setMeta(*iter);
+                setMeta(dict_entry, iter->GetValue());
             }
         }
     }

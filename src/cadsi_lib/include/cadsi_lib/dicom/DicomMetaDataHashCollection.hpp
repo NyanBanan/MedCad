@@ -6,28 +6,25 @@
 #define CADSI_DICOMMETADATAHASHCOLLECTION_HPP
 
 #include <QHash>
-#include <vtkDICOMDataElement.h>
-#include <vtkDICOMTag.h>
 
 #include "DicomTagStdHashSpecialization.hpp"
+#include "cadsiDicomDataElement.hpp"
 
 namespace cadsi_lib::dicom {
+    //TODO: Talk about private dictionaries and their additions
     class DicomMetaDataHashCollection {
     public:
         virtual ~DicomMetaDataHashCollection() = default;
 
-        [[nodiscard]] const QHash<vtkDICOMTag, vtkDICOMDataElement>& getMetaCollection() const;
-        [[nodiscard]] vtkDICOMDataElement getMeta(const vtkDICOMTag& tag) const;
-        void setMeta(const vtkDICOMDataElement& data);
-        void setMeta(vtkDICOMDataElement&& data);
-        void setMeta(const vtkDICOMTag& tag, const vtkDICOMDataElement& data);
-        void setMeta(const vtkDICOMTag& tag, vtkDICOMDataElement&& data);
-        void setMeta(const vtkDICOMTag& tag, const vtkDICOMValue& val);
-        void setMeta(const vtkDICOMTag& tag, vtkDICOMValue&& val);
+        [[nodiscard]] const QHash<vtkDICOMTag, cadsiDicomDataElement>& getMetaCollection() const;
+        [[nodiscard]] cadsiDicomDataElement getMeta(const vtkDICOMTag& tag) const;
+        void setMeta(const cadsiDicomDataElement& data);
+        void setMeta(cadsiDicomDataElement&& data);
+        void setMeta(const vtkDICOMDictEntry& dictEntry, const vtkDICOMValue& value);
 
         void reserveMetaCollection(qsizetype size);
     private:
-        QHash<vtkDICOMTag, vtkDICOMDataElement> _meta_collection;
+        QHash<vtkDICOMTag, cadsiDicomDataElement> _meta_collection;
     };
 }
 #endif    //CADSI_DICOMMETADATAHASHCOLLECTION_HPP

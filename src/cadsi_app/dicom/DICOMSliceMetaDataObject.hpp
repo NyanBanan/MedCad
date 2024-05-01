@@ -5,31 +5,30 @@
 #ifndef CADSI_DICOMSLICEMETADATAOBJECT_HPP
 #define CADSI_DICOMSLICEMETADATAOBJECT_HPP
 
-#include <sstream>
 #include <QString>
-#include <vtkDICOMDataElement.h>
-#include <vtkDICOMDictionary.h>
+#include <sstream>
 
+#include "cadsi_lib/dicom/cadsiDicomDataElement.hpp"
 
-    class DICOMSliceMetaDataObject {
-    public:
-        void setTag(const QString& tag);
-        QString getTag() const;
-        void setName(const QString& name);
-        QString getName() const;
-        void setVal(const QString& val);
-        QString getVal() const;
-        void setVR(const QString& vr);
-        QString getVR() const;
+class DICOMSliceMetaDataObject {
+public:
+    void setTag(const QString& tag);
+    QString getTag() const;
+    void setName(const QString& name);
+    QString getName() const;
+    void setVal(const QString& val);
+    QString getVal() const;
+    void setVR(const QString& vr);
+    QString getVR() const;
 
-        static DICOMSliceMetaDataObject fromDicomDataElement(const vtkDICOMDataElement& data);
-        static DICOMSliceMetaDataObject fromDicomDataElement(vtkDICOMDataElement&& data);
+    static DICOMSliceMetaDataObject fromCadsiDicomDataElement(const cadsi_lib::dicom::cadsiDicomDataElement& data);
+    static DICOMSliceMetaDataObject fromCadsiDicomDataElement(cadsi_lib::dicom::cadsiDicomDataElement&& data);
 
-    private:
-        QString _tag;
-        QString _name;
-        QString _val;
-        QString _vr;
-    };
+private:
+    QString _tag;
+    QString _name;
+    QString _val;
+    QString _vr;
+};
 
 #endif    //CADSI_DICOMSLICEMETADATAOBJECT_HPP

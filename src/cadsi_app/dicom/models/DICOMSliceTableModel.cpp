@@ -128,11 +128,11 @@ void DICOMSliceTableModel::setSliceInd(int slice_ind) {
         auto new_meta_last_ind = (int)series_meta.size() + (int)image_meta.size() - 1;
         beginInsertRows({}, 0, new_meta_last_ind);
 
-        std::ranges::for_each(series_meta, [this](auto series) {
-            _slice_data.append(DICOMSliceMetaDataObject::fromDicomDataElement(series));
+        std::ranges::for_each(series_meta, [this](auto&& series) {
+            _slice_data.append(DICOMSliceMetaDataObject::fromCadsiDicomDataElement(series));
         });
-        std::ranges::for_each(image_meta, [this](auto image) {
-            _slice_data.append(DICOMSliceMetaDataObject::fromDicomDataElement(image));
+        std::ranges::for_each(image_meta, [this](auto&& image) {
+            _slice_data.append(DICOMSliceMetaDataObject::fromCadsiDicomDataElement(image));
         });
 
         std::ranges::sort(_slice_data, {}, &DICOMSliceMetaDataObject::getTag);

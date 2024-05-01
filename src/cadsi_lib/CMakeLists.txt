@@ -73,6 +73,8 @@ add_library(cadsi_lib
         include/cadsi_lib/colors/providers/GlobalColorsProvider.hpp
         src/cadsi_lib/color_maps/providers/GlobalColorMapsProvider.cpp
         include/cadsi_lib/color_maps/providers/GlobalColorMapsProvider.hpp
+        src/cadsi_lib/dicom/cadsiDicomDataElement.cpp
+        include/cadsi_lib/dicom/cadsiDicomDataElement.hpp
 )
 
 include(${CMAKE_UTILS_FILE})

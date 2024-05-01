@@ -36,40 +36,37 @@ QString DICOMSliceMetaDataObject::getVR() const {
     return _vr;
 }
 
-DICOMSliceMetaDataObject DICOMSliceMetaDataObject::fromDicomDataElement(const vtkDICOMDataElement& data) {
+DICOMSliceMetaDataObject DICOMSliceMetaDataObject::fromCadsiDicomDataElement(
+    const cadsi_lib::dicom::cadsiDicomDataElement& data) {
     DICOMSliceMetaDataObject obj;
-    auto tag = data.GetTag();
+    auto dict_entry = data.getDictEntry();
+    auto tag = dict_entry.GetTag();
     std::stringstream tag_to_str;
     tag_to_str << tag;
     obj.setTag(QString::fromStdString(tag_to_str.str()));
 
-    auto dict_entr = vtkDICOMDictionary::FindDictEntry(tag);
-    if (dict_entr.IsValid()) {
-        obj.setName(dict_entr.GetName());
-    }
+    obj.setName(dict_entry.GetName());
 
-    obj.setVal(QString::fromStdString(data.GetValue().AsString()));
+    obj.setVal(QString::fromStdString(data.getValue().AsString()));
 
-    obj.setVR(data.GetVR().GetText());
+    obj.setVR(dict_entry.GetVR().GetText());
 
     return obj;
 }
 
-DICOMSliceMetaDataObject DICOMSliceMetaDataObject::fromDicomDataElement(vtkDICOMDataElement&& data) {
+DICOMSliceMetaDataObject DICOMSliceMetaDataObject::fromCadsiDicomDataElement(cadsi_lib::dicom::cadsiDicomDataElement&& data) {
     DICOMSliceMetaDataObject obj;
-    auto tag = data.GetTag();
+    auto dict_entry = data.getDictEntry();
+    auto tag = dict_entry.GetTag();
     std::stringstream tag_to_str;
     tag_to_str << tag;
     obj.setTag(QString::fromStdString(tag_to_str.str()));
 
-    auto dict_entr = vtkDICOMDictionary::FindDictEntry(tag);
-    if (dict_entr.IsValid()) {
-        obj.setName(dict_entr.GetName());
-    }
+    obj.setName(dict_entry.GetName());
 
-    obj.setVal(QString::fromStdString(data.GetValue().AsString()));
+    obj.setVal(QString::fromStdString(data.getValue().AsString()));
 
-    obj.setVR(data.GetVR().GetText());
+    obj.setVR(dict_entry.GetVR().GetText());
 
     return obj;
 }
