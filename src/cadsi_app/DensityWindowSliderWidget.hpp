@@ -26,16 +26,11 @@ class DensityWindowSliderWidget : public QWidget {
     };
 
     struct DensityWindowData {
-        int center_y;
-        int bottom_window_line;
-        int top_window_line;
+        int center_y{0};
+        int bottom_window_line{0};
+        int top_window_line{0};
 
-        int pixelSize();
-    };
-
-    struct DensityData {
-        int center_density;
-        int size;
+        int sizeInPixels();
     };
 
 public:
@@ -47,30 +42,33 @@ public:
     void mouseMoveEvent(QMouseEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 
-    void setDensity(int max_density, int min_density);
+    void setMaxMinDensity(int max_density, int min_density);
+public slots:
+    void setDensityCenter(int center_density);
+    void setDensityWindowSize(int new_size);
 signals:
     void windowValueChanged(int windowValue);
-    void levelValueChanged(int levelValue);
+    void centerDensityChanged(int levelValue);
 
 private:
     void moveWindow(int y);
-    void moveWindowMin(int y);
     void moveWindowSize(int y);
 
     void updatePixInDensity();
-    void updateDensity();
+    void updateCenterDensity();
+    void updateDensitySize();
 
     int getPixelByDensity(int density) const;
+    int getDensityByPixel(double pixel) const;
 
     HoldType getHoldType(int holded_y);
 
     HoldData _hold_data;
-    DensityWindowData _window_data;
-    DensityData _density_data;
+    DensityWindowData _density_window_data;
 
     QFont _font;
 
-    int _pix_in_density;
+    double _pix_in_density;
 
     int _max_density{2048};
     int _min_density{-2048};

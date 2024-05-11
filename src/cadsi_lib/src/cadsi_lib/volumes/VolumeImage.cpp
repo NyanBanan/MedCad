@@ -4,7 +4,7 @@
 
 #include "cadsi_lib/volumes/VolumeImage.hpp"
 
-namespace cadsi_lib::volumes{
+namespace cadsi_lib::volumes {
 
     OperationStatus VolumeImage::load(const QString& file_name) {
         QFileInfo file_info(file_name);
@@ -21,17 +21,13 @@ namespace cadsi_lib::volumes{
             //TODO: There is also link_to_file in original, but I dont know which purpose for it, so, I dont make link, but should remember if errors will occur
             reader->SetFileName(file_name.toStdString().c_str());
             reader->Update();
-            return load(reader->GetOutput());
+            vtkImageData::DeepCopy(reader->GetOutput());
+            return {true};
         } else {
             return {.success = false,
                     .error_code = file_data::ErrorCodes::WRONG_FILE_FORMAT,
                     .error_message = "Wrong file format, supported formats .stl and .ply"};
         }
-    }
-
-    OperationStatus VolumeImage::load(vtkImageData* data) {
-        vtkImageData::DeepCopy(data);
-        return {true};
     }
 
     OperationStatus VolumeImage::save(const QString& file_name) {
@@ -61,4 +57,16 @@ namespace cadsi_lib::volumes{
                     .error_message = "Wrong file format, supported formats .stl and .ply"};
         }
     }
-}    //namespace cadsi_lib
+
+    double VolumeImage::width() {
+        return GetDimensions()[0];
+    }
+
+    double VolumeImage::height() {
+        return GetDimensions()[1];
+    }
+
+    double VolumeImage::depth() {
+        return GetDimensions()[2];
+    }
+}    //namespace cadsi_lib::volumes

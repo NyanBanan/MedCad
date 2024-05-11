@@ -7,8 +7,9 @@
 
 #include <QMessageBox>
 
-class ErrorMessageBox {
-public:
+class ErrorMessageBox : public QObject{
+    Q_OBJECT
+public slots:
     void showMessage(const QString& message);
 private:
     QMessageBox _msg_box;

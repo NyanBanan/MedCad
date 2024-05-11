@@ -25,6 +25,18 @@ void PatientCard::onDicomLoaded(int patient_id, int series_id) {
     auto preview_image = _dicom_data->getSeries(patient_id, series_id).getPreview().scaled(300, 300);
 
     _ui.previewLabel->setPixmap(QPixmap::fromImage(preview_image));
+
+    preprocessor = new Preprocessor;
+    auto& images_list = _dicom_data->getSeries(patient_id, series_id).getImages();
+
+    vtkNew<vtkStringArray> image_file_names;
+    std::ranges::for_each(images_list, [&image_file_names](const auto& image_name){
+        image_file_names->InsertNextValue(image_name.getImageFilePath().toStdString());
+    });
+
+    preprocessor->loadImage(image_file_names);
+
+    _ui.goNextButton->setEnabled(true);
 }
 
 void PatientCard::on_changePhotoButton_pressed() {
@@ -53,4 +65,8 @@ void PatientCard::on_dicomPushButton_pressed() {
         connect(_dicom_dialog, &DICOMDatabaseDialog::dicomLoaded, this, &PatientCard::onDicomLoaded);
     }
     _dicom_dialog->show();
+}
+
+void PatientCard::on_goNextButton_pressed() {
+    preprocessor->show();
 }

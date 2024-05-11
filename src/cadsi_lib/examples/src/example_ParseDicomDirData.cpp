@@ -17,16 +17,16 @@ int main(int argc, char* argv[]) {
     for (const auto& patient : data) {
         auto patients_meta = patient.getMetaCollection();
         for (const auto& meta : patients_meta) {
-            std::cout << meta.GetTag() << " " << meta.GetValue() << std::endl;
+            std::cout << meta.getDictEntry().GetTag() << " " << meta.getValue() << std::endl;
         }
         auto series = patient.getSeries();
         for (const auto& curr_series : series) {
             auto curr_series_meta = curr_series.getMetaCollection();
             for (const auto& curr_meta : curr_series_meta) {
-                auto tag_data = vtkDICOMDictionary::FindDictEntry(curr_meta.GetTag());
+                auto tag_data = vtkDICOMDictionary::FindDictEntry(curr_meta.getDictEntry().GetTag());
                 if (tag_data.IsValid()) {
                     std::cout << "Tag: " << tag_data.GetTag() << ", Attr: " << tag_data.GetName() << ", Value: "
-                              << curr_meta.GetValue().AsString() << ", VR: " << tag_data.GetVR().GetText()
+                              << curr_meta.getValue().AsString() << ", VR: " << tag_data.GetVR().GetText()
                               << std::endl;
                 }
             }
