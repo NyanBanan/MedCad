@@ -21,7 +21,6 @@ public slots:
     void on_buttonBox_accepted();
 
 private:
-
     Ui::DICOMScanDialog _ui;
 };
 

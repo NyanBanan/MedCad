@@ -4,17 +4,7 @@
 
 #include "DensityWindowSliderWidget.hpp"
 
-DensityWindowSliderWidget::DensityWindowSliderWidget(QWidget* parent) : QWidget(parent), _font("Decorative", 7) {
-    setMaxMinDensity(2048, -2048);
-    setDensityWindowSize(500);
-    setDensityCenter(0);
-
-    auto fmw = QFontMetrics(_font).tightBoundingRect(QString::number(_min_density)).width();
-    setMinimumWidth(fmw + 20);
-    setMaximumWidth(fmw + 20);
-
-    _density_window_data.line_height = QFontMetrics(_font).tightBoundingRect(QString::number(_min_density)).height() * 2;
-}
+DensityWindowSliderWidget::DensityWindowSliderWidget(QWidget* parent) : QWidget(parent), _font("Decorative", 7) {}
 
 void DensityWindowSliderWidget::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
@@ -176,14 +166,28 @@ DensityWindowSliderWidget::HoldType DensityWindowSliderWidget::getHoldType(int h
 }
 
 void DensityWindowSliderWidget::setMaxMinDensity(int max_density, int min_density) {
+    if (_max_density < _min_density) {
+        return;
+    }
     _max_density = max_density;
     _min_density = min_density;
     _max_size = _max_density - _min_density;
+    auto max_dens_str = QString::number(_max_density);
+    auto min_dens_str = QString::number(_min_density);
+    auto fmw = QFontMetrics(_font)
+                   .tightBoundingRect(max_dens_str.size() > min_dens_str.size() ? max_dens_str : min_dens_str)
+                   .width();
+    setMinimumWidth(fmw + 20);
+    setMaximumWidth(fmw + 20);
+
+    _density_window_data.line_height = QFontMetrics(_font).tightBoundingRect(max_dens_str).height() * 2;
+
     updatePixInDensity();
 }
 
 void DensityWindowSliderWidget::updatePixInDensity() {
-    _pix_in_density = double(QWidget::height() - _density_window_data.line_height * 2) / (std::abs(_max_density) + std::abs(_min_density));
+    _pix_in_density = double(QWidget::height() - _density_window_data.line_height * 2)
+                      / (std::abs(_max_density) + std::abs(_min_density));
     updateDensityWindowData();
     update();
 }
@@ -202,4 +206,8 @@ void DensityWindowSliderWidget::updateDensityWindowData() {
                                               + _density_window_data.line_height - _move_size_bar_height;
     _density_window_data.top_window_line = getPixelByDensity(_density_data.center + _density_data.size / 2)
                                            + _density_window_data.line_height;
+}
+
+uint DensityWindowSliderWidget::getLineHeight() {
+    return _density_window_data.line_height;
 }

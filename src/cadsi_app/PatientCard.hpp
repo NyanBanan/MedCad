@@ -9,9 +9,10 @@
 #include <QFileDialog>
 #include <QWidget>
 #include <cadsi_lib/dicom/DicomImage.hpp>
+#include <cadsi_lib/dicom/providers/DicomImageDataProvider.hpp>
 
-#include "SliceMetadata.hpp"
 #include "Preprocessor.hpp"
+#include "SliceMetadata.hpp"
 #include "dicom/DICOMDatabaseDialog.hpp"
 #include "ui_files/ui_patientcard.h"
 
@@ -21,6 +22,7 @@ public:
     PatientCard(QWidget* parent = nullptr);
 
 public slots:
+    void showErrorMessage(const QString& error_message);
     void onDicomLoaded(int patient_id, int series_id);
     void on_changePhotoButton_pressed();
     void on_birthdateDateTimeEdit_dateChanged(QDate born);
@@ -31,9 +33,12 @@ private:
     QSharedPointer<DICOMData> _dicom_data{nullptr};
     DICOMDatabaseDialog* _dicom_dialog{nullptr};
     DICOMSliceTableModel _slices_model;
+    ErrorMessageBox _error_win;
 
     //TODO: change init
     Preprocessor* preprocessor;
+
+    cadsi_lib::dicom::providers::DicomImageDataProvider provider;
 
     Ui::PatientCard _ui;
 };

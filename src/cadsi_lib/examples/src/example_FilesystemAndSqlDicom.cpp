@@ -13,10 +13,10 @@
 void printPatient(const cadsi_lib::dicom::DicomPatient& patient) {
     auto patients_meta = patient.getMetaCollection();
     for (const auto& curr_meta : patients_meta) {
-        auto tag_data = vtkDICOMDictionary::FindDictEntry(curr_meta.GetTag());
+        auto tag_data = vtkDICOMDictionary::FindDictEntry(curr_meta.getDictEntry().GetTag());
         if (tag_data.IsValid()) {
             std::cout << "Tag: " << tag_data.GetTag() << ", Attr: " << tag_data.GetName()
-                      << ", Value: " << curr_meta.GetValue().AsString() << ", VR: " << tag_data.GetVR().GetText()
+                      << ", Value: " << curr_meta.getValue().AsString() << ", VR: " << tag_data.GetVR().GetText()
                       << std::endl;
         }
     }
@@ -24,10 +24,10 @@ void printPatient(const cadsi_lib::dicom::DicomPatient& patient) {
     for (const auto& curr_series : series) {
         auto curr_series_meta = curr_series.getMetaCollection();
         for (const auto& curr_meta : curr_series_meta) {
-            auto tag_data = vtkDICOMDictionary::FindDictEntry(curr_meta.GetTag());
+            auto tag_data = vtkDICOMDictionary::FindDictEntry(curr_meta.getDictEntry().GetTag());
             if (tag_data.IsValid()) {
                 std::cout << "Tag: " << tag_data.GetTag() << ", Attr: " << tag_data.GetName()
-                          << ", Value: " << curr_meta.GetValue().AsString() << ", VR: " << tag_data.GetVR().GetText()
+                          << ", Value: " << curr_meta.getValue().AsString() << ", VR: " << tag_data.GetVR().GetText()
                           << std::endl;
             }
         }

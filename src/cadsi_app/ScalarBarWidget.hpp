@@ -15,11 +15,13 @@ public:
     ScalarBarWidget(QWidget* parent = nullptr);
 public slots:
     void setLut(vtkLookupTable* lut);
+    void setTopBottomMargins(uint margin);
 
     void paintEvent(QPaintEvent* event) override;
 
 private:
     vtkSmartPointer<vtkLookupTable> _lut{nullptr};
+    uint _margin{0};
 };
 
 #endif    //CADSI_SCALARBARWIDGET_HPP

@@ -31,10 +31,10 @@ public:
 
 signals:
     void dicomLoaded(int patient_id, int series_id);
+    void error(const QString& error_message);
 public slots:
     void patientSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
     void seriesSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
-    void showErrorMessage(const QString& error_message);
     void scanDicomDir(bool deep_scan, const QString& scan_dir);
     void on_scanPushButton_pressed();
     void on_importPushButton_pressed();
@@ -46,7 +46,6 @@ private:
     void initDataBaseFile();
 
     QString _db_file;
-    ErrorMessageBox _error_win;
     DICOMPatientTableModel* _patient_model;
     DICOMSeriesListModel* _series_model;
     DICOMSliceTableModel* _slices_model;

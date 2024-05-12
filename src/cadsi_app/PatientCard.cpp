@@ -30,13 +30,23 @@ void PatientCard::onDicomLoaded(int patient_id, int series_id) {
     auto& images_list = _dicom_data->getSeries(patient_id, series_id).getImages();
 
     vtkNew<vtkStringArray> image_file_names;
-    std::ranges::for_each(images_list, [&image_file_names](const auto& image_name){
+    std::ranges::for_each(images_list, [&image_file_names](const auto& image_name) {
         image_file_names->InsertNextValue(image_name.getImageFilePath().toStdString());
     });
 
-    preprocessor->loadImage(image_file_names);
+    auto parse_res = provider.parseDicomFiles(image_file_names);
+
+    if (!parse_res.success) {
+        showErrorMessage(QString("Ошибка обработки изображений. Код ошибки: %1").arg(parse_res.error_code));
+    }
+
+    preprocessor->loadImage(provider.getOutputPort());
 
     _ui.goNextButton->setEnabled(true);
+}
+
+void PatientCard::showErrorMessage(const QString& error_message) {
+    _error_win.showMessage(error_message);
 }
 
 void PatientCard::on_changePhotoButton_pressed() {
@@ -63,6 +73,7 @@ void PatientCard::on_dicomPushButton_pressed() {
         _dicom_dialog->setDICOMSharedData(_dicom_data);
 
         connect(_dicom_dialog, &DICOMDatabaseDialog::dicomLoaded, this, &PatientCard::onDicomLoaded);
+        connect(_dicom_dialog, &DICOMDatabaseDialog::error, this, &PatientCard::showErrorMessage);
     }
     _dicom_dialog->show();
 }

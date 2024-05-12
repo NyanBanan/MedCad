@@ -34,7 +34,7 @@ DICOMDatabaseDialog::DICOMDatabaseDialog(QWidget* parent) : QDialog(parent) {
 
     _ui.widgetSlices->setModel(_slices_model);
 
-    connect(&_mapper, &DICOMFromFilesToSqlMapper::error, this, &DICOMDatabaseDialog::showErrorMessage);
+    connect(&_mapper, &DICOMFromFilesToSqlMapper::error, this, &DICOMDatabaseDialog::error);
 
     _mapper.setDataBaseFile(_db_file);
 }
@@ -100,10 +100,6 @@ void DICOMDatabaseDialog::seriesSelectionChanged(const QItemSelection& selected,
     }
 }
 
-void DICOMDatabaseDialog::showErrorMessage(const QString& error_message) {
-    _error_win.showMessage(error_message);
-}
-
 void DICOMDatabaseDialog::on_scanPushButton_pressed() {
     auto scanDialog = new DICOMScanDialog(this);
 
@@ -160,13 +156,13 @@ void DICOMDatabaseDialog::setDICOMSharedData(QSharedPointer<DICOMData> dicom_dat
 void DICOMDatabaseDialog::on_importPushButton_pressed() {
     auto selected_series = _ui.seriesListView->selectionModel()->selectedRows();
     if (selected_series.size() != 1) {
-        _error_win.showMessage("Wrong series selection (only 1 series must be selected)");
+        emit error("Wrong series selection (only 1 series must be selected)");
         return;
     }
     auto curr_series_id = selected_series.first().row();
     auto curr_patient_id = _series_model->getCurrPatientInd();
     if (curr_patient_id < 0) {
-        _error_win.showMessage("Get patient id error");
+        emit error("Get patient id error");
         return;
     }
     emit dicomLoaded(curr_patient_id, curr_series_id);

@@ -56,18 +56,22 @@ namespace cadsi_lib::dicom::providers {
                             auto curr_image = images.emplaceBack(image_path);
                         }
 
-                        //Read metadata for series
-                        vtkNew<vtkDICOMReader> series_data_reader;
+                        DicomImageDataProvider provider;
 
-                        series_data_reader->SetMemoryRowOrderToFileNative();
-                        series_data_reader->SetFileNames(images_files);
-                        series_data_reader->Update();
+                        auto res = provider.parseDicomFiles(images_files);
 
-                        auto preview = createPreviewImage(series_data_reader);
+                        if (!res.success) {
+                            return {.status = res, .data = {}};
+                        }
+
+                        auto image_data =
+                            PreviewImage::generatePreviewImage(provider.getPatientMatrix(), provider.getOutputPort());
+
+                        auto preview = PreviewImage::vtkImageDataToQImage(image_data);
                         curr_series.setPreview(std::move(preview));
                         curr_series.assignImages(images);
 
-                        auto meta = series_data_reader->GetMetaData();
+                        auto meta = provider.getMetaData();
 
                         curr_series.parseMetaData(meta);
                     }
@@ -84,27 +88,6 @@ namespace cadsi_lib::dicom::providers {
             }
         }
         return {true, 0, {}, _patients};
-    }
-
-    QImage FileDataDicomProvider::createPreviewImage(vtkDICOMReader* reader) {
-        vtkAlgorithmOutput* portToDisplay = reader->GetOutputPort();
-        vtkMatrix4x4* matrix = reader->GetPatientMatrix();
-
-        vtkDICOMMetaData* meta = reader->GetMetaData();
-        vtkNew<vtkDICOMCTRectifier> rect;
-        if (meta->Get(DC::Modality).Matches("CT")) {
-            rect->SetVolumeMatrix(matrix);
-            rect->SetInputConnection(portToDisplay);
-            rect->Update();
-            portToDisplay = rect->GetOutputPort();
-            matrix = rect->GetRectifiedMatrix();
-        }
-
-        auto image_data = PreviewImage::generatePreviewImage(matrix, portToDisplay);
-
-        auto qimage = PreviewImage::vtkImageDataToQImage(image_data);
-
-        return qimage;
     }
 
     //TODO: Try remove recursion

@@ -20,6 +20,7 @@ Preprocessor::Preprocessor(QWidget* parent) : QWidget(parent) {
     std::ranges::for_each(QList{"SAGITTAL", "CORONAL", "AXIAL"}, [this](auto orientation) {
         _ui.imageOrientationComboBox->addItem(orientation);
     });
+    _ui.imageOrientationComboBox->setCurrentIndex(0);
 
     auto global_color_maps_provider =
         cadsi_lib::color_maps::providers::GlobalColorMapsProvider::getGlobalColorMapsProvider();
@@ -28,8 +29,8 @@ Preprocessor::Preprocessor(QWidget* parent) : QWidget(parent) {
         setColorMapsNames(names);
     }
 
-    _ui.splitter->setStretchFactor(0,1);
-    _ui.splitter->setStretchFactor(1,0);
+    _ui.splitter->setStretchFactor(0, 1);
+    _ui.splitter->setStretchFactor(1, 0);
 }
 
 void Preprocessor::on_colorMapsComboBox_currentTextChanged(const QString& text) {
@@ -44,6 +45,7 @@ void Preprocessor::on_colorMapsComboBox_currentTextChanged(const QString& text) 
 }
 
 void Preprocessor::setColorMapsNames(const QList<QString>& names) {
+    _ui.colorMapsComboBox->clear();
     std::ranges::for_each(names, [this](auto name) {
         _ui.colorMapsComboBox->addItem(name);
     });

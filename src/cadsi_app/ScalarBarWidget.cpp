@@ -8,6 +8,7 @@ ScalarBarWidget::ScalarBarWidget(QWidget* parent) : QWidget(parent) {}
 
 void ScalarBarWidget::setLut(vtkLookupTable* lut) {
     _lut = lut;
+    update();
 }
 
 void ScalarBarWidget::paintEvent(QPaintEvent* event) {
@@ -21,9 +22,13 @@ void ScalarBarWidget::paintEvent(QPaintEvent* event) {
 
     auto g = (double)_lut->GetNumberOfAvailableColors() / height;
 
-    for (auto y : std::views::iota(0, height)) {
+    for (auto y : std::views::iota(_margin, height - _margin)) {
         auto color = _lut->GetTable()->GetTuple4(y * g);
         painter.setPen(QColor((int)color[0], (int)color[1], (int)color[2], (int)color[3]));
         painter.drawLine(0, height - y, width, height - y);
     }
+}
+
+void ScalarBarWidget::setTopBottomMargins(uint margin) {
+    _margin = margin;
 }

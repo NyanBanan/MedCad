@@ -29,7 +29,7 @@ class DensityWindowSliderWidget : public QWidget {
     struct DensityWindowData {
         double bottom_window_line{0};
         double top_window_line{0};
-        int line_height{0};
+        uint line_height{0};
     };
 
     struct DensityData {
@@ -47,6 +47,7 @@ public:
     void resizeEvent(QResizeEvent* event) override;
 
     void setMaxMinDensity(int max_density, int min_density);
+    uint getLineHeight();
 public slots:
     void setDensityCenter(int center_density);
     void setDensityWindowSize(int new_size);
@@ -60,8 +61,6 @@ private:
 
     void updatePixInDensity();
     void updateDensityWindowData();
-    void updateCenterDensity();
-    void updateDensitySize();
 
     double getPixelByDensity(int density) const;
     int getDensityByPixel(double pixel) const;
@@ -76,11 +75,11 @@ private:
 
     QFont _font;
 
-    double _pix_in_density;
+    double _pix_in_density{0.0};
 
-    int _max_density;
-    int _min_density;
-    int _max_size;
+    int _max_density{0};
+    int _min_density{0};
+    int _max_size{0};
 
     static inline int _min_level{255};
     static inline int _move_size_bar_height{5};

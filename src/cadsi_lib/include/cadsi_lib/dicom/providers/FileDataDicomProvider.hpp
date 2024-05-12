@@ -27,6 +27,7 @@
 #include "cadsi_lib/dicom/PreviewImage.hpp"
 #include "cadsi_lib/file_data/FileDataErrors.hpp"
 #include "cadsi_lib/volumes/VolumeObject.hpp"
+#include "DicomImageDataProvider.hpp"
 
 namespace cadsi_lib::dicom::providers {
 
@@ -37,7 +38,6 @@ namespace cadsi_lib::dicom::providers {
 
     private:
         int countDepth(const QString& dir_path);
-        QImage createPreviewImage(vtkDICOMReader* reader);
 
         QList<DicomPatient> _patients;
     };
