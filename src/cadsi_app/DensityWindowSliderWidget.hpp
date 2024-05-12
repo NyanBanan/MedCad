@@ -16,8 +16,9 @@ class DensityWindowSliderWidget : public QWidget {
 
     enum HoldType {
         NONE,
-        MOVE_WINDOW_SIZE,
+        MOVE_MAX_WINDOW_SIZE,
         MOVE_WINDOW,
+        MOVE_MIN_WINDOW_SIZE,
     };
 
     struct HoldData {
@@ -26,11 +27,14 @@ class DensityWindowSliderWidget : public QWidget {
     };
 
     struct DensityWindowData {
-        int center_y{0};
-        int bottom_window_line{0};
-        int top_window_line{0};
+        double bottom_window_line{0};
+        double top_window_line{0};
+        int line_height{0};
+    };
 
-        int sizeInPixels();
+    struct DensityData {
+        int center{0};
+        int size{0};
     };
 
 public:
@@ -55,26 +59,31 @@ private:
     void moveWindowSize(int y);
 
     void updatePixInDensity();
+    void updateDensityWindowData();
     void updateCenterDensity();
     void updateDensitySize();
 
-    int getPixelByDensity(int density) const;
+    double getPixelByDensity(int density) const;
     int getDensityByPixel(double pixel) const;
+    double densityToPixelsNum(int density) const;
+    int pixelsNumToDensity(double pixels) const;
 
     HoldType getHoldType(int holded_y);
 
     HoldData _hold_data;
     DensityWindowData _density_window_data;
+    DensityData _density_data;
 
     QFont _font;
 
     double _pix_in_density;
 
-    int _max_density{2048};
-    int _min_density{-2048};
+    int _max_density;
+    int _min_density;
+    int _max_size;
 
     static inline int _min_level{255};
-    static inline int _move_min_max_bar_height_level{5};
+    static inline int _move_size_bar_height{5};
 };
 
 #endif    //CADSI_DENSITYWINDOWSLIDERWIDGET_HPP
