@@ -22,6 +22,7 @@ signals:
     void lutChanged(vtkLookupTable* lut);
     void error(const QString& error_message);
 public slots:
+    void setCmapComboBoxCurrentText(const QString& text);
     void on_cmapComboBox_currentTextChanged(const QString& text);
 
 private:

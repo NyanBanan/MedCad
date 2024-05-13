@@ -11,8 +11,6 @@
 Preprocessor::Preprocessor(QWidget* parent) : QWidget(parent) {
     _ui.setupUi(this);
 
-    connect(_ui.colormap, &ColorMap::error, &_error_win, &ErrorMessageBox::showMessage);
-
     connect(this, &Preprocessor::lutChanged, _ui.colormap, &ColorMap::lutChanged);
     connect(this, &Preprocessor::lutChanged, &_plane_viewer, &DICOMPlaneViewer::setLut);
     connect(_ui.imageOrientationComboBox,
@@ -24,6 +22,12 @@ Preprocessor::Preprocessor(QWidget* parent) : QWidget(parent) {
         _ui.imageOrientationComboBox->addItem(orientation);
     });
     _ui.imageOrientationComboBox->setCurrentIndex(0);
+
+    connect(_ui.colormap, &ColorMap::error, &_error_win, &ErrorMessageBox::showMessage);
+    connect(_ui.colormap, &ColorMap::windowValueChanged, &_plane_viewer, &DICOMPlaneViewer::setWindowLevel);
+    connect(_ui.colormap, &ColorMap::centerDensityChanged, &_plane_viewer, &DICOMPlaneViewer::setDensityLevel);
+
+    connect(_ui.colorMapsComboBox, &QComboBox::currentTextChanged, _ui.colormap, &ColorMap::setCmapComboBoxCurrentText);
 
     auto global_color_maps_provider =
         cadsi_lib::color_maps::providers::GlobalColorMapsProvider::getGlobalColorMapsProvider();
@@ -38,6 +42,21 @@ Preprocessor::Preprocessor(QWidget* parent) : QWidget(parent) {
     _ui.planeview->setPlane(&_plane_viewer);
 }
 
+void Preprocessor::setColorMapsNames(const QList<QString>& names) {
+    _ui.colorMapsComboBox->clear();
+    std::ranges::for_each(names, [this](auto name) {
+        _ui.colorMapsComboBox->addItem(name);
+    });
+    if (!names.isEmpty()) {
+        on_colorMapsComboBox_currentTextChanged(names[0]);
+    }
+    _ui.colormap->setColorMapNames(names);
+}
+
+void Preprocessor::loadImage(vtkAlgorithmOutput* input) {
+    _plane_viewer.loadImage(input);
+}
+
 void Preprocessor::on_colorMapsComboBox_currentTextChanged(const QString& text) {
     auto global_color_maps_provider =
         cadsi_lib::color_maps::providers::GlobalColorMapsProvider::getGlobalColorMapsProvider();
@@ -47,16 +66,4 @@ void Preprocessor::on_colorMapsComboBox_currentTextChanged(const QString& text) 
     } else {
         _error_win.showMessage("global color provider not initialized");
     }
-}
-
-void Preprocessor::setColorMapsNames(const QList<QString>& names) {
-    _ui.colorMapsComboBox->clear();
-    std::ranges::for_each(names, [this](auto name) {
-        _ui.colorMapsComboBox->addItem(name);
-    });
-    _ui.colormap->setColorMapNames(names);
-}
-
-void Preprocessor::loadImage(vtkAlgorithmOutput* input) {
-    _plane_viewer.loadImage(input);
 }

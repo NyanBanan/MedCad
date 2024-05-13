@@ -9,18 +9,18 @@ DICOMPlaneViewer::DICOMPlaneViewer(QWidget* parent) : QVTKOpenGLNativeWidget(par
     setEnabled(false);
     interactor()->SetInteractorStyle(vtkInteractorStyleImage::New());
     renderWindow()->AddRenderer(_ren);
-    _viewer->SetInteractor(interactor());
-    auto global_color_provider = cadsi_lib::colors::providers::GlobalColorsProvider::getGlobalColorsProvider();
-    if (global_color_provider) {
-        _viewer->GetTextProperty()->SetColor(global_color_provider.toStrongRef()->color("red").GetData());
-    }
-    _viewer->DisplayTextOn();
+
+    _mapper->SetInputConnection(_colorizer->GetOutputPort());
+    _slice->SetMapper(_mapper);
+    _slice->SetPosition(0, 0, 0);
+    _ren->AddViewProp(_slice);
 }
 
 void DICOMPlaneViewer::loadImage(vtkAlgorithmOutput* data) {
-    _viewer->SetInputConnection(data);
+    _colorizer->SetInputConnection(data);
 
     onImageLoaded();
+    emit slicesNumChanged(_mapper->GetSliceNumberMinValue(), _mapper->GetSliceNumberMaxValue());
 }
 
 void DICOMPlaneViewer::onImageUpdated() {
@@ -28,15 +28,6 @@ void DICOMPlaneViewer::onImageUpdated() {
 }
 
 void DICOMPlaneViewer::onImageLoaded() {
-    _viewer->SetPlaneOrientation(_orientation);
-    _viewer->SetRestrictPlaneToVolume(true);
-    _viewer->SetResliceInterpolateToNearestNeighbour();
-    _viewer->On();
-
-    /*    _ren->GetActiveCamera()->SetParallelScale(data->GetDimensions()[0] / 5.0);*/
-
-    updateOrientation();
-
     setEnabled(true);
 }
 
@@ -47,86 +38,61 @@ void DICOMPlaneViewer::setOrientationFromInt(int orientation) {
     setOrientation((Orientations)orientation);
 }
 
-void DICOMPlaneViewer::setOrientation(DICOMPlaneViewer::Orientations orientation) {
-    if (_viewer->GetInput() != nullptr) {
-        _viewer->SetPlaneOrientation(_orientation);
-        updateOrientation();
+void DICOMPlaneViewer::setOrientation(DICOMPlaneViewer::Orientations new_orientation) {
+    if (_colorizer->GetInput() != nullptr) {
+        if (_orientation != new_orientation) {
+            _mapper->SetOrientation(new_orientation);
+
+            switch (new_orientation) {
+                case SAGITTAL: {
+                    _slice->SetOrientation(0, 90, 90);
+
+                    break;
+                }
+                case CORONAL: {
+                    _slice->SetOrientation(90, 0, 180);
+
+                    break;
+                }
+                case AXIAL: {
+                    _slice->SetOrientation(0, 0, 0);
+                    break;
+                }
+            }
+            _ren->ResetCamera();
+            renderWindow()->Render();
+            _orientation = new_orientation;
+            emit slicesNumChanged(_mapper->GetSliceNumberMinValue(), _mapper->GetSliceNumberMaxValue());
+        }
     }
 }
 
 void DICOMPlaneViewer::setLut(vtkLookupTable* lut) {
-    if (_viewer->GetInput() != nullptr) {
-        _viewer->SetLookupTable(lut);
-        onImageUpdated();
-    }
+    _colorizer->SetLookupTable(lut);
+    onImageUpdated();
 }
 
 void DICOMPlaneViewer::setDensityLevel(int level) {
-    if (_viewer->GetInput() != nullptr) {
-        if (_viewer->GetLevel() != level) {
-            _viewer->SetWindowLevel(_viewer->GetWindow(), level);
+    if (_colorizer->GetInput() != nullptr) {
+        if (_colorizer->GetLevel() != level) {
+            _colorizer->SetLevel(level);
             onImageUpdated();
         }
     }
 }
 
 void DICOMPlaneViewer::setWindowLevel(int window) {
-    if (_viewer->GetInput() != nullptr) {
-        if (_viewer->GetWindow() != window) {
-            _viewer->SetWindowLevel(window, _viewer->GetLevel());
+    if (_colorizer->GetInput() != nullptr) {
+        if (_colorizer->GetWindow() != window) {
+            _colorizer->SetWindow(window);
             onImageUpdated();
         }
     }
 }
 
 void DICOMPlaneViewer::setCurrentSlice(int index) {
-    if (_viewer->GetInput() != nullptr) {
-        _viewer->SetSliceIndex(index);
-        auto camera = _ren->GetActiveCamera();
-
+    if (_colorizer->GetInput() != nullptr) {
+        _mapper->SetSliceNumber(index);
         onImageUpdated();
     }
-}
-
-void DICOMPlaneViewer::updateOrientation() {
-    _viewer->SetPlaneOrientation(_orientation);
-    double center[3];
-    _viewer->GetCenter(center);
-
-    auto camera = _ren->GetActiveCamera();
-    camera->SetFocalPoint(center);
-    camera->SetViewUp(center);
-    camera->SetViewUp(0, 0, -1);
-    camera->SetFocalPoint(0, 0, 0);
-    camera->SetPosition(0, 1000, 0);
-
-
-//    double camera_pos[3];
-//    memcpy(camera_pos, center, sizeof(center));
-//    switch (_orientation) {
-//        case SAGITTAL: {
-//            camera_pos[0] += 400;
-//            camera->SetRoll(270);
-//
-//            break;
-//        }
-//        case AXIAL: {
-//            camera_pos[2] -= 400;
-//            camera->SetRoll(180);
-//
-//            break;
-//        }
-//        case CORONAL: {
-//            camera_pos[1] -= 400;
-//            camera->SetRoll(0);
-//            break;
-//        }
-//    }
-    camera->ComputeViewPlaneNormal();
-//    camera->Azimuth(30.0);
-//    camera->Elevation(30.0);
-    camera->ParallelProjectionOn();
-
-    _ren->ResetCamera();
-    renderWindow()->Render();
 }

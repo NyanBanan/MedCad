@@ -42,6 +42,10 @@ void ColorMap::setColorMapNames(QList<QString> color_map_names) {
     });
 }
 
+void ColorMap::setCmapComboBoxCurrentText(const QString& text) {
+    _ui.cmapComboBox->setCurrentText(text);
+}
+
 void ColorMap::on_cmapComboBox_currentTextChanged(const QString& text) {
     auto global_color_maps_provider =
         cadsi_lib::color_maps::providers::GlobalColorMapsProvider::getGlobalColorMapsProvider();

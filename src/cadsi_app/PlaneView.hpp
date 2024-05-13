@@ -29,16 +29,14 @@
 #include "ui_files/ui_planeview.h"
 
 class PlaneView : public QWidget {
+    Q_OBJECT
 public:
-    enum Orientations {
-        SAGITTAL = 0,
-        CORONAL = 1,
-        AXIAL = 2
-    };
-
     PlaneView(QWidget* parent = nullptr);
 
     void setPlane(DICOMPlaneViewer* plane_view);
+
+private slots:
+    void onSlicesNumChanged(int min_slice_ind, int max_slice_ind);
 
 private:
     QPointer<DICOMPlaneViewer> _plane_view;

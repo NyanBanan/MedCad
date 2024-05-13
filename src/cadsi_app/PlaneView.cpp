@@ -19,4 +19,10 @@ void PlaneView::setPlane(DICOMPlaneViewer* plane_view) {
     _ui.layout->addWidget(_plane_view, 1);
 
     connect(_ui.sliceSlider, &QSlider::valueChanged, _plane_view, &DICOMPlaneViewer::setCurrentSlice);
+    connect(_plane_view, &DICOMPlaneViewer::slicesNumChanged, this, &PlaneView::onSlicesNumChanged);
+}
+
+void PlaneView::onSlicesNumChanged(int min_slice_ind, int max_slice_ind) {
+    _ui.sliceSlider->setMinimum(min_slice_ind);
+    _ui.sliceSlider->setMaximum(max_slice_ind);
 }
