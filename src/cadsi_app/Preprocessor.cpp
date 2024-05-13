@@ -14,8 +14,11 @@ Preprocessor::Preprocessor(QWidget* parent) : QWidget(parent) {
     connect(_ui.colormap, &ColorMap::error, &_error_win, &ErrorMessageBox::showMessage);
 
     connect(this, &Preprocessor::lutChanged, _ui.colormap, &ColorMap::lutChanged);
-    connect(this, &Preprocessor::lutChanged, _ui.planeview, &PlaneView::setLut);
-    connect(_ui.imageOrientationComboBox, &QComboBox::currentIndexChanged, _ui.planeview, &PlaneView::setOrientationFromInt);
+    connect(this, &Preprocessor::lutChanged, &_plane_viewer, &DICOMPlaneViewer::setLut);
+    connect(_ui.imageOrientationComboBox,
+            &QComboBox::currentIndexChanged,
+            &_plane_viewer,
+            &DICOMPlaneViewer::setOrientationFromInt);
 
     std::ranges::for_each(QList{"SAGITTAL", "CORONAL", "AXIAL"}, [this](auto orientation) {
         _ui.imageOrientationComboBox->addItem(orientation);
@@ -31,6 +34,8 @@ Preprocessor::Preprocessor(QWidget* parent) : QWidget(parent) {
 
     _ui.splitter->setStretchFactor(0, 1);
     _ui.splitter->setStretchFactor(1, 0);
+
+    _ui.planeview->setPlane(&_plane_viewer);
 }
 
 void Preprocessor::on_colorMapsComboBox_currentTextChanged(const QString& text) {
@@ -52,23 +57,6 @@ void Preprocessor::setColorMapsNames(const QList<QString>& names) {
     _ui.colormap->setColorMapNames(names);
 }
 
-void Preprocessor::loadImage(vtkStringArray* image_file_names) {
-    vtkNew<vtkDICOMReader> series_data_reader;
-
-    series_data_reader->SetFileNames(image_file_names);
-    series_data_reader->SetMemoryRowOrderToFileNative();
-    series_data_reader->Update();
-
-    //    vtkAlgorithmOutput* portToDisplay = series_data_reader->GetOutputPort();
-    //    vtkMatrix4x4* matrix = series_data_reader->GetPatientMatrix();
-    //
-    //    vtkDICOMMetaData* meta = series_data_reader->GetMetaData();
-    //    vtkNew<vtkDICOMCTRectifier> rect;
-    //    if (meta->Get(DC::Modality).Matches("CT")) {
-    //        rect->SetVolumeMatrix(matrix);
-    //        rect->SetInputConnection(portToDisplay);
-    //        rect->Update();
-    //        portToDisplay = rect->GetOutputPort();
-    //    }
-    _ui.planeview->loadImage(series_data_reader->GetOutput());
+void Preprocessor::loadImage(vtkAlgorithmOutput* input) {
+    _plane_viewer.loadImage(input);
 }

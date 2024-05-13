@@ -5,6 +5,7 @@
 #ifndef CADSI_PLANEVIEW_HPP
 #define CADSI_PLANEVIEW_HPP
 
+#include <QPointer>
 #include <QVTKOpenGLNativeWidget.h>
 #include <cadsi_lib/colors/providers/GlobalColorsProvider.hpp>
 #include <cadsi_lib/volumes/VolumeImage.hpp>
@@ -12,6 +13,10 @@
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkImageData.h>
 #include <vtkImagePlaneWidget.h>
+#include <vtkImageProperty.h>
+#include <vtkImageResliceMapper.h>
+#include <vtkImageSlice.h>
+#include <vtkImageMapToColors.h>
 #include <vtkInteractorStyleImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
@@ -20,39 +25,23 @@
 #include <vtkViewport.h>
 
 #include "ImageObject.hpp"
+#include "dicom/DICOMPlaneViewer.hpp"
 #include "ui_files/ui_planeview.h"
 
-class PlaneView : public QVTKOpenGLNativeWidget {
+class PlaneView : public QWidget {
 public:
     enum Orientations {
-        SAGITTAL,
-        CORONAL,
-        AXIAL
+        SAGITTAL = 0,
+        CORONAL = 1,
+        AXIAL = 2
     };
 
     PlaneView(QWidget* parent = nullptr);
 
-    void loadImage(vtkImageData* data);
-    void setOrientation(PlaneView::Orientations orientation);
-    void setDensityLevel(int level);
-    void setWindowLevel(int window);
-public slots:
-    void setOrientationFromInt(int orientation);
-    void setLut(vtkLookupTable* lut);
-    void setCurrentSlice(int index);
-
-private slots:
-    void onImageLoaded();
-    void onImageUpdated();
+    void setPlane(DICOMPlaneViewer* plane_view);
 
 private:
-    void updateOrientation();
-
-    Orientations _orientation{CORONAL};
-    vtkNew<vtkImagePlaneWidget> _viewer;
-    vtkNew<vtkRenderer> _ren;
-
-    ImageObject _image;
+    QPointer<DICOMPlaneViewer> _plane_view;
 
     Ui::PlaneView _ui;
 };

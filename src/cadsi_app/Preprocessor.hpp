@@ -18,7 +18,7 @@ public:
     Preprocessor(QWidget* parent = nullptr);
 
     void setColorMapsNames(const QList<QString>& names);
-    void loadImage(vtkStringArray* image_file_names);
+    void loadImage(vtkAlgorithmOutput* input);
 signals:
     void lutChanged(vtkLookupTable* lut);
 public slots:
@@ -26,6 +26,7 @@ public slots:
 
 private:
     ErrorMessageBox _error_win;
+    DICOMPlaneViewer _plane_viewer;
 
     Ui::Preprocessor _ui;
 };

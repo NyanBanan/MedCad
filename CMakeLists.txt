@@ -72,6 +72,8 @@ qt_add_executable(cadsi src/cadsi_app/main.cpp resources/resources.qrc
         src/cadsi_app/ImageObject.hpp
         src/cadsi_app/ColorMap.cpp
         src/cadsi_app/ColorMap.hpp
+        src/cadsi_app/dicom/DICOMPlaneViewer.cpp
+        src/cadsi_app/dicom/DICOMPlaneViewer.hpp
 )
 
 if (NOT DEFINED CMAKE_UTILS_FILE)
