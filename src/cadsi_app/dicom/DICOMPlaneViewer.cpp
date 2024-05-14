@@ -10,6 +10,8 @@ DICOMPlaneViewer::DICOMPlaneViewer(QWidget* parent) : QVTKOpenGLNativeWidget(par
     interactor()->SetInteractorStyle(vtkInteractorStyleImage::New());
     renderWindow()->AddRenderer(_ren);
 
+    _first_alg = _colorizer;
+
     _mapper->SetInputConnection(_colorizer->GetOutputPort());
     _slice->SetMapper(_mapper);
     _slice->SetPosition(0, 0, 0);
@@ -39,7 +41,7 @@ void DICOMPlaneViewer::setOrientationFromInt(int orientation) {
 }
 
 void DICOMPlaneViewer::setOrientation(DICOMPlaneViewer::Orientations new_orientation) {
-    if (_colorizer->GetInput() != nullptr) {
+    if (_first_alg->GetInput() != nullptr) {
         if (_orientation != new_orientation) {
             _mapper->SetOrientation(new_orientation);
 
@@ -73,7 +75,7 @@ void DICOMPlaneViewer::setLut(vtkLookupTable* lut) {
 }
 
 void DICOMPlaneViewer::setDensityLevel(int level) {
-    if (_colorizer->GetInput() != nullptr) {
+    if (_first_alg->GetInput() != nullptr) {
         if (_colorizer->GetLevel() != level) {
             _colorizer->SetLevel(level);
             onImageUpdated();
@@ -82,7 +84,7 @@ void DICOMPlaneViewer::setDensityLevel(int level) {
 }
 
 void DICOMPlaneViewer::setWindowLevel(int window) {
-    if (_colorizer->GetInput() != nullptr) {
+    if (_first_alg->GetInput() != nullptr) {
         if (_colorizer->GetWindow() != window) {
             _colorizer->SetWindow(window);
             onImageUpdated();
@@ -91,7 +93,7 @@ void DICOMPlaneViewer::setWindowLevel(int window) {
 }
 
 void DICOMPlaneViewer::setCurrentSlice(int index) {
-    if (_colorizer->GetInput() != nullptr) {
+    if (_first_alg->GetInput() != nullptr) {
         _mapper->SetSliceNumber(index);
         onImageUpdated();
     }

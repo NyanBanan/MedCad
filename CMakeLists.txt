@@ -61,7 +61,6 @@ qt_add_executable(cadsi src/cadsi_app/main.cpp resources/resources.qrc
         src/cadsi_app/ErrorMessageBox.cpp
         src/cadsi_app/ErrorMessageBox.hpp
         src/cadsi_app/Preprocessor.cpp
-        src/cadsi_app/Preprocessor.hpp
         src/cadsi_app/DensityWindowSliderWidget.cpp
         src/cadsi_app/DensityWindowSliderWidget.hpp
         src/cadsi_app/ScalarBarWidget.cpp
@@ -74,6 +73,8 @@ qt_add_executable(cadsi src/cadsi_app/main.cpp resources/resources.qrc
         src/cadsi_app/ColorMap.hpp
         src/cadsi_app/dicom/DICOMPlaneViewer.cpp
         src/cadsi_app/dicom/DICOMPlaneViewer.hpp
+        src/cadsi_app/PreprocessorTransformationsPipe.cpp
+        src/cadsi_app/PreprocessorTransformationsPipe.hpp
 )
 
 if (NOT DEFINED CMAKE_UTILS_FILE)

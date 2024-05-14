@@ -16,7 +16,7 @@ PatientCard::PatientCard(QWidget* parent) : QWidget(parent) {
     _dicom_data.reset(new DICOMData);
 
     _slices_model.setDicomData(_dicom_data);
-}
+    }
 
 void PatientCard::onDicomLoaded(int patient_id, int series_id) {
     _slices_model.setPatientInd(patient_id);
@@ -33,6 +33,8 @@ void PatientCard::onDicomLoaded(int patient_id, int series_id) {
     std::ranges::for_each(images_list, [&image_file_names](const auto& image_name) {
         image_file_names->InsertNextValue(image_name.getImageFilePath().toStdString());
     });
+
+    cadsi_lib::dicom::providers::DicomImageDataProvider provider;
 
     auto parse_res = provider.parseDicomFiles(image_file_names);
 

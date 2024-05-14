@@ -727,6 +727,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="smoothOriginPushButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="minimumSize">
               <size>
                <width>24</width>
@@ -746,15 +749,15 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>:/icons/preprocessor/сбросить до оригинала.png</normaloff>:/icons/preprocessor/сбросить до оригинала.png</iconset>
+              <iconset resource="../../../resources/resources.qrc">
+               <normaloff>:/icons/preprocessor/reset.png</normaloff>:/icons/preprocessor/reset.png</iconset>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QPushButton" name="smoothApply">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="minimumSize">
               <size>
@@ -775,8 +778,8 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>:/icons/preprocessor/применить.png</normaloff>:/icons/preprocessor/применить.png</iconset>
+              <iconset resource="../../../resources/resources.qrc">
+               <normaloff>:/icons/preprocessor/apply.png</normaloff>:/icons/preprocessor/apply.png</iconset>
              </property>
             </widget>
            </item>
@@ -885,8 +888,8 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>:/icons/preprocessor/применить.png</normaloff>:/icons/preprocessor/применить.png</iconset>
+              <iconset resource="../../../resources/resources.qrc">
+               <normaloff>:/icons/preprocessor/apply.png</normaloff>:/icons/preprocessor/apply.png</iconset>
              </property>
             </widget>
            </item>
@@ -978,8 +981,8 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>:/icons/preprocessor/применить.png</normaloff>:/icons/preprocessor/применить.png</iconset>
+              <iconset resource="../../../resources/resources.qrc">
+               <normaloff>:/icons/preprocessor/apply.png</normaloff>:/icons/preprocessor/apply.png</iconset>
              </property>
             </widget>
            </item>

@@ -38,8 +38,6 @@ private:
     //TODO: change init
     Preprocessor* preprocessor;
 
-    cadsi_lib::dicom::providers::DicomImageDataProvider provider;
-
     Ui::PatientCard _ui;
 };
 

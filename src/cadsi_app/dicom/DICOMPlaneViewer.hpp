@@ -56,6 +56,8 @@ private slots:
     void onImageUpdated();
 
 private:
+    vtkImageAlgorithm* _first_alg;
+
     Orientations _orientation{AXIAL};
     vtkNew<vtkImageSliceMapper> _mapper;
     vtkNew<vtkImageSlice> _slice;

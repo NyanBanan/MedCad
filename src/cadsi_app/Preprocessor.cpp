@@ -4,10 +4,6 @@
 
 #include "Preprocessor.hpp"
 
-#include <vtkDICOMCTRectifier.h>
-#include <vtkDICOMMetaData.h>
-#include <vtkDICOMReader.h>
-
 Preprocessor::Preprocessor(QWidget* parent) : QWidget(parent) {
     _ui.setupUi(this);
 
@@ -21,7 +17,7 @@ Preprocessor::Preprocessor(QWidget* parent) : QWidget(parent) {
     std::ranges::for_each(QList{"SAGITTAL", "CORONAL", "AXIAL"}, [this](auto orientation) {
         _ui.imageOrientationComboBox->addItem(orientation);
     });
-    _ui.imageOrientationComboBox->setCurrentIndex(0);
+    _ui.imageOrientationComboBox->setCurrentIndex(2);
 
     connect(_ui.colormap, &ColorMap::error, &_error_win, &ErrorMessageBox::showMessage);
     connect(_ui.colormap, &ColorMap::windowValueChanged, &_plane_viewer, &DICOMPlaneViewer::setWindowLevel);
@@ -40,6 +36,12 @@ Preprocessor::Preprocessor(QWidget* parent) : QWidget(parent) {
     _ui.splitter->setStretchFactor(1, 0);
 
     _ui.planeview->setPlane(&_plane_viewer);
+
+    connect(_ui.denoiseFactorSlider, &QSlider::valueChanged, _ui.denoiseFactorSpinBox, &QSpinBox::setValue);
+    connect(_ui.denoiseFactorSpinBox, &QSpinBox::valueChanged, _ui.denoiseFactorSlider, &QSlider::setValue);
+
+    connect(_ui.denoiseThresholdSlider, &QSlider::valueChanged, _ui.denoiseThresholdSpinBox, &QSpinBox::setValue);
+    connect(_ui.denoiseThresholdSpinBox, &QSpinBox::valueChanged, _ui.denoiseThresholdSlider, &QSlider::setValue);
 }
 
 void Preprocessor::setColorMapsNames(const QList<QString>& names) {
@@ -54,7 +56,8 @@ void Preprocessor::setColorMapsNames(const QList<QString>& names) {
 }
 
 void Preprocessor::loadImage(vtkAlgorithmOutput* input) {
-    _plane_viewer.loadImage(input);
+    _trans_pipe.setInputConnection(input);
+    _plane_viewer.loadImage(_trans_pipe.getOutputConnection());
 }
 
 void Preprocessor::on_colorMapsComboBox_currentTextChanged(const QString& text) {
@@ -66,4 +69,54 @@ void Preprocessor::on_colorMapsComboBox_currentTextChanged(const QString& text) 
     } else {
         _error_win.showMessage("global color provider not initialized");
     }
+}
+
+void Preprocessor::on_smoothSigmaDoubleSpinBox_valueChanged() {
+    _ui.smoothApply->setEnabled(true);
+}
+
+void Preprocessor::on_smoothWindowDoubleSpinBox_valueChanged() {
+    _ui.smoothApply->setEnabled(true);
+}
+
+void Preprocessor::on_smoothApply_pressed() {
+    _ui.smoothApply->setEnabled(false);
+    _trans_pipe.smooth(_ui.smoothSigmaDoubleSpinBox->value(), _ui.smoothWindowDoubleSpinBox->value());
+}
+
+void Preprocessor::on_denoiseFactorSlider_valueChanged() {
+    _ui.denoiseApply->setEnabled(true);
+}
+
+void Preprocessor::on_denoiseFactorSpinBox_valueChanged() {
+    _ui.denoiseApply->setEnabled(true);
+}
+
+void Preprocessor::on_denoiseThresholdSlider_valueChanged() {
+    _ui.denoiseApply->setEnabled(true);
+}
+
+void Preprocessor::on_denoiseThresholdSpinBox_valueChanged() {
+    _ui.denoiseApply->setEnabled(true);
+}
+
+void Preprocessor::on_denoiseApply_pressed() {
+    _ui.denoiseApply->setEnabled(false);
+    _trans_pipe.denoise(_ui.denoiseFactorSpinBox->value(), _ui.denoiseThresholdSpinBox->value());
+}
+
+void Preprocessor::on_enhancePushButton_pressed() {
+    _trans_pipe.enhance();
+}
+
+void Preprocessor::on_flipXPushButton_pressed() {
+    _trans_pipe.flip(PreprocessorTransformationsPipe::X);
+}
+
+void Preprocessor::on_flipYPushButton_pressed() {
+    _trans_pipe.flip(PreprocessorTransformationsPipe::Y);
+}
+
+void Preprocessor::on_flipZPushButton_pressed() {
+    _trans_pipe.flip(PreprocessorTransformationsPipe::Z);
 }
