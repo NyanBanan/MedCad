@@ -6,6 +6,8 @@ if (NOT DEFINED CMAKE_UTILS_FILE)
 endif ()
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Test Qml Quick Sql)
+#Uncomment and use if QT_LIBRARIES are not working
+#set(${Qt6_LIBRARIES} Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Test Qt6::Qml Qt6::Quick Qt6::Sql)
 find_package(VTK REQUIRED)
 
 add_library(cadsi_lib
@@ -67,6 +69,18 @@ add_library(cadsi_lib
         include/cadsi_lib/dicom/PreviewImage.hpp
         src/cadsi_lib/volumes/providers/GlobalVolumeProvider.cpp
         include/cadsi_lib/volumes/providers/GlobalVolumeProvider.hpp
+        src/cadsi_lib/dicom/DicomSqlTablesInspector.cpp
+        include/cadsi_lib/dicom/DicomSqlTablesInspector.hpp
+        src/cadsi_lib/colors/providers/GlobalColorsProvider.cpp
+        include/cadsi_lib/colors/providers/GlobalColorsProvider.hpp
+        src/cadsi_lib/color_maps/providers/GlobalColorMapsProvider.cpp
+        include/cadsi_lib/color_maps/providers/GlobalColorMapsProvider.hpp
+        src/cadsi_lib/dicom/cadsiDicomDataElement.cpp
+        include/cadsi_lib/dicom/cadsiDicomDataElement.hpp
+        src/cadsi_lib/volumes/VolumeImageTransformations.cpp
+        include/cadsi_lib/volumes/VolumeImageTransformations.hpp
+        src/cadsi_lib/dicom/providers/DicomImageDataProvider.cpp
+        include/cadsi_lib/dicom/providers/DicomImageDataProvider.hpp
 )
 
 include(${CMAKE_UTILS_FILE})

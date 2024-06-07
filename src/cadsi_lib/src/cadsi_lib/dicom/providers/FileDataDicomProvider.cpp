@@ -4,14 +4,12 @@
 
 #include "cadsi_lib/dicom/providers/FileDataDicomProvider.hpp"
 
-#include "cadsi_lib/Result.hpp"
-
 namespace cadsi_lib::dicom::providers {
     Result<QList<DicomPatient>> FileDataDicomProvider::getAllPatients() {
         return {.status{.success = true}, .data = _patients};
     }
 
-    Result<QList<DicomPatient>> FileDataDicomProvider::readDir(const QString& dir_path) {
+    Result<QList<DicomPatient>> FileDataDicomProvider::readDir(const QString& dir_path, bool need_deep_search) {
         QFileInfo dir(dir_path);
         if (!dir.exists()) {
             return {false, cadsi_lib::file_data::ErrorCodes::FILE_NOT_EXIST};
@@ -20,6 +18,9 @@ namespace cadsi_lib::dicom::providers {
         }
         vtkNew<vtkDICOMDirectory> dicomdir;
         dicomdir->SetDirectoryName(dir.absoluteFilePath().toStdString().c_str());
+        if (need_deep_search) {
+            dicomdir->SetScanDepth(countDepth(dir_path));
+        }
         dicomdir->Update();
 
         int n = dicomdir->GetNumberOfPatients();
@@ -55,31 +56,24 @@ namespace cadsi_lib::dicom::providers {
                             auto curr_image = images.emplaceBack(image_path);
                         }
 
-                        //Read metadata for series
-                        vtkNew<vtkDICOMReader> series_data_reader;
+                        DicomImageDataProvider provider;
 
-                        series_data_reader->SetFileName(images_files->GetValue(0).c_str());
-                        series_data_reader->Update();
+                        auto res = provider.parseDicomFiles(images_files);
 
-                        createPreviewImage(series_data_reader);
-
-                        auto meta = series_data_reader->GetMetaData();
-
-                        for (auto iter = meta->Begin(); iter != meta->End(); ++iter) {
-                            if (iter->IsPerInstance()) {
-                                auto instance_num = iter->GetNumberOfInstances();
-                                if (images.size() < instance_num) {
-                                    instance_num = (int)images.size();
-                                }
-                                for (auto inst : std::views::iota(0, instance_num)) {
-                                    images[inst].setMeta(*iter);
-                                }
-                            } else {
-                                curr_series.setMeta(iter->GetTag(), iter->GetValue());
-                            }
+                        if (!res.success) {
+                            return {.status = res, .data = {}};
                         }
 
+                        auto image_data =
+                            PreviewImage::generatePreviewImage(provider.getPatientMatrix(), provider.getOutputPort());
+
+                        auto preview = PreviewImage::vtkImageDataToQImage(image_data);
+                        curr_series.setPreview(std::move(preview));
                         curr_series.assignImages(images);
+
+                        auto meta = provider.getMetaData();
+
+                        curr_series.parseMetaData(meta);
                     }
                 }
             }
@@ -96,7 +90,20 @@ namespace cadsi_lib::dicom::providers {
         return {true, 0, {}, _patients};
     }
 
-    void FileDataDicomProvider::createPreviewImage(vtkDICOMReader* reader) {
-
+    //TODO: Try remove recursion
+    int FileDataDicomProvider::countDepth(const QString& dir_path) {
+        QDir dir(dir_path);
+        auto entry_dirs = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        if (entry_dirs.isEmpty()) {
+            return 1;
+        }
+        auto max_depth = 0;
+        for (const auto& dir_name : entry_dirs) {
+            auto count = countDepth(dir.absoluteFilePath(dir_name));
+            if (count > max_depth) {
+                max_depth = count + 1;
+            }
+        }
+        return max_depth;
     }
 }    //namespace cadsi_lib::dicom::providers

@@ -37,9 +37,12 @@ namespace cadsi_lib::dicom {
         void setSex(const vtkDICOMValue& sex);
         void setSex(vtkDICOMValue&& sex);
         [[nodiscard]] QDate getBirthDate() const;
-        [[nodiscard]] QString getBirthDateString() const;
+        [[nodiscard]] QString getBirthDateDicomString() const;
+        [[nodiscard]] QString getBirthDateBySlashString() const;
         void setBirthDate(const QDate& birthDate);
         void setBirthDate(QDate&& birthDate);
+        void setBirthDate(const QString& birthDateDicomStr);
+        void setBirthDate(QString&& birthDateDicomStr);
         void setBirthDate(const vtkDICOMValue& birthDate);
         void setBirthDate(vtkDICOMValue&& birthDate);
         [[nodiscard]] QString getComments() const;
@@ -47,14 +50,14 @@ namespace cadsi_lib::dicom {
         void setComments(QString&& comments);
         void setComments(const vtkDICOMValue& comments);
         void setComments(vtkDICOMValue&& comments);
-        [[nodiscard]] QList<DicomSeries> getSeries() const;
+        [[nodiscard]] const QList<DicomSeries>& getSeries() const;
         void addSeries(const QList<DicomSeries>& series);
         void addSeries(QList<DicomSeries>&& series);
         void addSeries(const DicomSeries& series);
         void addSeries(DicomSeries&& series);
         void reserveSeries(qsizetype size);
-        qsizetype numOfSeries();
-        qsizetype numOfImages();
+        qsizetype numOfSeries() const;
+        qsizetype numOfImages() const;
 
         template<typename... Args>
         DicomSeries& emplaceBackSeries(Args... args) {

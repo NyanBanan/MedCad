@@ -13,6 +13,8 @@ namespace cadsi_lib::dicom::writers {
     public:
         virtual ~DicomWriter() = default;
         virtual OperationStatus insertPatients(const QList<DicomPatient>& patients) = 0;
+        virtual OperationStatus deletePatients(QList<QString> patients_uid) = 0;
+        virtual OperationStatus deleteSeries(QList<QString> series_uid) = 0;
     };
 
 }    //namespace cadsi_lib::dicom::writers

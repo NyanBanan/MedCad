@@ -29,7 +29,7 @@ namespace cadsi_lib::dicom {
     }
 
     QString DicomPatient::getId() const {
-        return QString::fromStdString(getMeta(DC::PatientID).GetValue().AsString());
+        return QString::fromStdString(getMeta(DC::PatientID).getValue().AsString());
     }
 
     void DicomPatient::setUid(const QString& uid) {
@@ -43,17 +43,17 @@ namespace cadsi_lib::dicom {
     }
 
     void DicomPatient::setUid(const vtkDICOMValue& uid) {
-        vtkDICOMDataElement data_elem(DC::PatientID, uid);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::PatientID);
+        setMeta(dict_entry, uid);
     }
 
     void DicomPatient::setUid(vtkDICOMValue&& uid) {
-        vtkDICOMDataElement data_elem(DC::PatientID, uid);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::PatientID);
+        setMeta(dict_entry, uid);
     }
 
     QString DicomPatient::getName() const {
-        return QString::fromStdString(getMeta(DC::PatientName).GetValue().AsString());
+        return QString::fromStdString(getMeta(DC::PatientName).getValue().AsString());
     }
 
     void DicomPatient::setName(const QString& name) {
@@ -67,17 +67,17 @@ namespace cadsi_lib::dicom {
     }
 
     void DicomPatient::setName(const vtkDICOMValue& name) {
-        vtkDICOMDataElement data_elem(DC::PatientName, name);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::PatientName);
+        setMeta(dict_entry, name);
     }
 
     void DicomPatient::setName(vtkDICOMValue&& name) {
-        vtkDICOMDataElement data_elem(DC::PatientName, name);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::PatientName);
+        setMeta(dict_entry, name);
     }
 
     QString DicomPatient::getSex() const {
-        return QString::fromStdString(getMeta(DC::PatientSex).GetValue().AsString());
+        return QString::fromStdString(getMeta(DC::PatientSex).getValue().AsString());
     }
 
     void DicomPatient::setSex(const QString& sex) {
@@ -91,45 +91,57 @@ namespace cadsi_lib::dicom {
     }
 
     void DicomPatient::setSex(const vtkDICOMValue& sex) {
-        vtkDICOMDataElement data_elem(DC::PatientSex, sex);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::PatientSex);
+        setMeta(dict_entry, sex);
     }
 
     void DicomPatient::setSex(vtkDICOMValue&& sex) {
-        vtkDICOMDataElement data_elem(DC::PatientSex, sex);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::PatientSex);
+        setMeta(dict_entry, sex);
     }
 
     QDate DicomPatient::getBirthDate() const {
-        return QDate::fromString(getBirthDateString(), "yyyyMMdd");
+        return QDate::fromString(getBirthDateDicomString(), "yyyyMMdd");
     }
 
-    QString DicomPatient::getBirthDateString() const {
-        return QString::fromStdString(getMeta(DC::PatientBirthDate).GetValue().AsString());
+    QString DicomPatient::getBirthDateDicomString() const {
+        return QString::fromStdString(getMeta(DC::PatientBirthDate).getValue().AsString());
+    }
+
+    QString DicomPatient::getBirthDateBySlashString() const {
+        return getBirthDate().toString("yyyy/MM/dd");
     }
 
     void DicomPatient::setBirthDate(const QDate& birthDate) {
-        vtkDICOMValue val{vtkDICOMVR::DA, birthDate.toString("yyyyMMdd").toStdString()};
-        setBirthDate(val);
+        setBirthDate(std::move(birthDate.toString("yyyyMMdd")));
     }
 
     void DicomPatient::setBirthDate(QDate&& birthDate) {
-        vtkDICOMValue val{vtkDICOMVR::DA, birthDate.toString("yyyyMMdd").toStdString()};
-        setBirthDate(val);
+        setBirthDate(std::move(birthDate.toString("yyyyMMdd")));
+    }
+
+    void DicomPatient::setBirthDate(const QString& birthDateDicomStr) {
+        vtkDICOMValue val{vtkDICOMVR::DA, birthDateDicomStr.toStdString()};
+        setBirthDate(std::move(val));
+    }
+
+    void DicomPatient::setBirthDate(QString&& birthDateDicomStr) {
+        vtkDICOMValue val{vtkDICOMVR::DA, birthDateDicomStr.toStdString()};
+        setBirthDate(std::move(val));
     }
 
     void DicomPatient::setBirthDate(const vtkDICOMValue& birthDate) {
-        vtkDICOMDataElement data_elem(DC::PatientBirthDate, birthDate);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::PatientBirthDate);
+        setMeta(dict_entry, birthDate);
     }
 
     void DicomPatient::setBirthDate(vtkDICOMValue&& birthDate) {
-        vtkDICOMDataElement data_elem(DC::PatientBirthDate, birthDate);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::PatientBirthDate);
+        setMeta(dict_entry, birthDate);
     }
 
     QString DicomPatient::getComments() const {
-        return QString::fromStdString(getMeta(DC::PatientComments).GetValue().AsString());
+        return QString::fromStdString(getMeta(DC::PatientComments).getValue().AsString());
     }
 
     void DicomPatient::setComments(const QString& comments) {
@@ -143,16 +155,16 @@ namespace cadsi_lib::dicom {
     }
 
     void DicomPatient::setComments(const vtkDICOMValue& comments) {
-        vtkDICOMDataElement data_elem(DC::PatientComments, comments);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::PatientComments);
+        setMeta(dict_entry, comments);
     }
 
     void DicomPatient::setComments(vtkDICOMValue&& comments) {
-        vtkDICOMDataElement data_elem(DC::PatientComments, comments);
-        setMeta(std::move(data_elem));
+        auto dict_entry = vtkDICOMDictionary::FindDictEntry(DC::PatientComments);
+        setMeta(dict_entry, comments);
     }
 
-    QList<DicomSeries> DicomPatient::getSeries() const {
+    const QList<DicomSeries>& DicomPatient::getSeries() const {
         return _series;
     }
 
@@ -176,15 +188,16 @@ namespace cadsi_lib::dicom {
         _series.reserve(size);
     }
 
-    qsizetype DicomPatient::numOfSeries() {
+    qsizetype DicomPatient::numOfSeries() const {
         return _series.size();
     }
 
-    qsizetype DicomPatient::numOfImages() {
-        auto a = std::accumulate(_series.begin(), _series.end(), qsizetype{0},  [](const qsizetype &a, const DicomSeries &b){
-            auto bc = b.numOfImages();
-            return a + bc;
-        });
+    qsizetype DicomPatient::numOfImages() const {
+        auto a =
+            std::accumulate(_series.begin(), _series.end(), qsizetype{0}, [](const qsizetype& a, const DicomSeries& b) {
+                auto bc = b.numOfImages();
+                return a + bc;
+            });
         return a;
     }
 }    //namespace cadsi_lib::dicom

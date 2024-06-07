@@ -5,12 +5,12 @@
 #ifndef CADSI_DICOMIMAGEMETADATATABLEMODEL_HPP
 #define CADSI_DICOMIMAGEMETADATATABLEMODEL_HPP
 
-#include <QList>
 #include <QAbstractTableModel>
+#include <QList>
 
-#include "DICOMImageMetaDataTableModelObject.hpp"
+#include "DICOMSliceMetaDataObject.hpp"
 
-    class DICOMImageMetaDataTableModel : public QAbstractTableModel {
+class DICOMImageMetaDataTableModel : public QAbstractTableModel {
     public:
         enum Roles {
             FIRST_ROLE = Qt::UserRole,    //required for column counting, dont use them
@@ -26,10 +26,10 @@
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-        void pushBack(DICOMImageMetaDataTableModelObject&& obj);
+        void pushBack(DICOMSliceMetaDataObject&& obj);
 
     private:
-        QList<DICOMImageMetaDataTableModelObject> _objects;
+        QList<DICOMSliceMetaDataObject> _objects;
     };
 
 #endif    //CADSI_DICOMIMAGEMETADATATABLEMODEL_HPP

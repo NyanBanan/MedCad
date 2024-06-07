@@ -8,13 +8,15 @@
 #include <cadsi_lib/dicom/providers/FileDataDicomProvider.hpp>
 #include <vtkDICOMDictionary.h>
 
+#include "cadsi_lib/dicom/DicomSqlTablesInspector.hpp"
+
 void printPatient(const cadsi_lib::dicom::DicomPatient& patient) {
     auto patients_meta = patient.getMetaCollection();
     for (const auto& curr_meta : patients_meta) {
-        auto tag_data = vtkDICOMDictionary::FindDictEntry(curr_meta.GetTag());
+        auto tag_data = vtkDICOMDictionary::FindDictEntry(curr_meta.getDictEntry().GetTag());
         if (tag_data.IsValid()) {
             std::cout << "Tag: " << tag_data.GetTag() << ", Attr: " << tag_data.GetName()
-                      << ", Value: " << curr_meta.GetValue().AsString() << ", VR: " << tag_data.GetVR().GetText()
+                      << ", Value: " << curr_meta.getValue().AsString() << ", VR: " << tag_data.GetVR().GetText()
                       << std::endl;
         }
     }
@@ -22,10 +24,10 @@ void printPatient(const cadsi_lib::dicom::DicomPatient& patient) {
     for (const auto& curr_series : series) {
         auto curr_series_meta = curr_series.getMetaCollection();
         for (const auto& curr_meta : curr_series_meta) {
-            auto tag_data = vtkDICOMDictionary::FindDictEntry(curr_meta.GetTag());
+            auto tag_data = vtkDICOMDictionary::FindDictEntry(curr_meta.getDictEntry().GetTag());
             if (tag_data.IsValid()) {
                 std::cout << "Tag: " << tag_data.GetTag() << ", Attr: " << tag_data.GetName()
-                          << ", Value: " << curr_meta.GetValue().AsString() << ", VR: " << tag_data.GetVR().GetText()
+                          << ", Value: " << curr_meta.getValue().AsString() << ", VR: " << tag_data.GetVR().GetText()
                           << std::endl;
             }
         }
@@ -47,18 +49,11 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     //Check db structure for our needs
-    auto check_res = db.checkTablesExists();
-    if (!check_res.status.success) {
-        auto status = check_res.status;
-        std::cout << status.error_code << " " << status.error_message << std::endl;
+    cadsi_lib::dicom::DicomSqlTablesInspector insp;
+    auto create_tables_res = insp.checkAndCreateTables(db);
+    if (!create_tables_res.success) {
+        std::cout << create_tables_res.error_code << " " << create_tables_res.error_message << std::endl;
         return -1;
-    }
-    if (!check_res.data) {
-        auto create_tables_res = db.createTables();
-        if (!create_tables_res.success) {
-            std::cout << create_tables_res.error_code << " " << create_tables_res.error_message << std::endl;
-            return -1;
-        }
     }
 
     cadsi_lib::dicom::SqliteDicomDataMapper data_mapper;
@@ -68,9 +63,9 @@ int main(int argc, char* argv[]) {
     cadsi_lib::dicom::providers::FileDataDicomProvider file_data_provider;
     //Windows paths with russian symbols might cause problems. Dir may be recognized as not existing. That's why I decode input
     auto to_utf8 = QStringDecoder(QStringDecoder::System);
-    auto result = file_data_provider.readDir(to_utf8(argv[1]));
+    auto result = file_data_provider.readDir(to_utf8(argv[1]), false);
     if (!result.status.success) {
-        auto status = check_res.status;
+        auto status = result.status;
         std::cout << status.error_code << " " << status.error_message << std::endl;
     }
     auto data = result.data;

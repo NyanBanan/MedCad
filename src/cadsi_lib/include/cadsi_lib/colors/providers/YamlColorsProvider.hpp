@@ -15,7 +15,7 @@ namespace cadsi_lib::colors::providers {
     /*!
 	\brief Class for work with colors declared in yaml
         */
-    class YamlColorsProvider : public ColorsProvider,
+    class YamlColorsProvider : public ColorsProvider, public
                                cadsi_lib::yaml::YamlDeserializable {
     public:
         QMap<QString, vtkColor3d> allColors() override;

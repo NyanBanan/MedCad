@@ -6,11 +6,14 @@
 #define CADSI_SQLITEDICOMDATAMAPPER_HPP
 
 #include <QSqlDatabase>
+#include <QSqlRecord>
+#include <qbuffer.h>
 #include <ranges>
-
-#include <vtkDICOMReader.h>
 #include <vtkDICOMMetaData.h>
+#include <vtkDICOMReader.h>
 #include <vtkNew.h>
+#include <vtkStringArray.h>
+#include <vtkSmartPointer.h>
 
 #include "SqliteDicomDataBase.hpp"
 #include "providers/DicomProvider.hpp"
@@ -35,6 +38,9 @@ namespace cadsi_lib::dicom {
         OperationStatus insertSeries(uint patient_uid, const QList<DicomSeries>& series);
         OperationStatus insertSlice(uint series_uid, const DicomImage& slice);
         OperationStatus insertSlices(uint series_uid, const QList<DicomImage>& slices);
+
+        OperationStatus deletePatients(QList<QString> patients_uid) override;
+        OperationStatus deleteSeries(QList<QString> series_uid) override;
 
     private:
         /*!

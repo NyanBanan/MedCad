@@ -6,10 +6,12 @@
 
 namespace cadsi_lib::dicom {
     OperationStatus SqliteDicomDataBase::createOrConnect(QString path) {
-        _connection = QSqlDatabase::addDatabase("QSQLITE", "DICOMDB");
-        _connection.setDatabaseName(path);
+        if (!_connection.isValid()) {
+            _connection = QSqlDatabase::addDatabase("QSQLITE", "DICOMDB");
+            _connection.setDatabaseName(path);
+        }
         if (_connection.open()) {
-            return {.success = true};
+            return enableForeignKeys();
         } else {
             auto error = _connection.lastError();
             return {.success = false,
@@ -18,7 +20,7 @@ namespace cadsi_lib::dicom {
         }
     }
 
-    Result<QSqlDatabase> SqliteDicomDataBase::getConnection() {
+    Result<QSqlDatabase> SqliteDicomDataBase::getConnection() const {
         if (!_connection.isOpen()) {
             return {.status = {.success = false, .error_code = ErrorCodes::DB_CLOSED}};
         } else {
@@ -26,38 +28,15 @@ namespace cadsi_lib::dicom {
         }
     }
 
-    Result<bool> SqliteDicomDataBase::checkTablesExists() {
-        auto conn_result = getConnection();
-        if (!conn_result.status.success) {
-            return {.status = std::move(conn_result.status)};
-        } else {
-            auto tables = _connection.tables();
-            std::ranges::sort(tables);
-            auto tables_exist = std::ranges::includes(tables, tables_names, [](const QString& str1, const QString& str2) {
-                return str1.toStdString() < str2.toStdString();
-            });
-            return {.status = {.success = true}, .data = tables_exist};
+    OperationStatus SqliteDicomDataBase::enableForeignKeys() {
+        QSqlQuery foreign_keys_query{_connection};
+        if (!foreign_keys_query.exec("PRAGMA foreign_keys=on")) {
+            auto error = foreign_keys_query.lastError();
+            return {.success = false,
+                    .error_code = static_cast<unsigned int>(error.type()),
+                    .error_message = std::format("foreign_keys_query error in SqliteDicomDataBase::createOrConnect: {}",
+                                                 error.text().toStdString())};
         }
+        return {true};
     }
-
-    OperationStatus SqliteDicomDataBase::createTables() {
-        auto conn_result = getConnection();
-        if (!conn_result.status.success) {
-            return conn_result.status;
-        }
-        auto conn = conn_result.data;
-        QSqlQuery create_query{conn};
-
-        OperationStatus creationResult{.success = true};
-        std::ranges::for_each(sql_create_tables, [&](const auto& sql_table_create) {
-            if (!create_query.exec(sql_table_create)) {
-                auto error = create_query.lastError();
-                creationResult.success = false;
-                creationResult.error_code = static_cast<unsigned int>(error.type());
-                creationResult.error_message = std::move(error.text().toStdString());
-            }
-        });
-        return creationResult;
-    }
-
 }    //namespace cadsi_lib::dicom

@@ -13,14 +13,24 @@ namespace cadsi_lib::dicom {
     class SqliteDicomDataBase : public DicomDataBase{
     public:
         /*!
+         * Error codes from sqlite
+         * \warning There is only 1 code because i use it for constraint error checking
+         */
+        enum SQLiteNativeErrorCodes{
+            SQLITE_CONSTRAINT_UNIQUE = 2067
+        };
+        /*!
 	    \warning If an error happens error_code returned from QSqlError::ErrorTypes
          */
         OperationStatus createOrConnect(QString path) override;
-        Result<QSqlDatabase> getConnection() override;
-        Result<bool> checkTablesExists() override;
-        OperationStatus createTables() override;
-
+        Result<QSqlDatabase> getConnection() const override;
     private:
+        /*!
+         * In SQLite foreign keys offed by default
+         * For turning them on exec "PRAGMA foreign_keys=on" is required for every connection
+         */
+        OperationStatus enableForeignKeys();
+
         QSqlDatabase _connection;
     };
 }

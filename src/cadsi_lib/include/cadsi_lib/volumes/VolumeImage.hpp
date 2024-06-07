@@ -17,11 +17,14 @@ namespace cadsi_lib::volumes {
     class VolumeImage : public vtkImageData {
     public:
         OperationStatus load(const QString& file_name);
-        OperationStatus load(vtkImageData* data);
         OperationStatus save(const QString& file_name);
+
+        double width();
+        double height();
+        double depth();
 
     private:
         volumes::VolumesRenderParams::Modality _modality;
     };
-}    //namespace cadsi_lib
+}    //namespace cadsi_lib::volumes
 #endif    //CADSI_VOLUMEIMAGE_HPP

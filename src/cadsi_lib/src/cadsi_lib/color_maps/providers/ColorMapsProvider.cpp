@@ -20,14 +20,15 @@ namespace cadsi_lib::color_maps::providers {
         ctf->SetColorSpaceToDiverging();
 
         //We add colors from the color map
-        double delta = (max_value - min_value) / double(color_map.size() - 1);
+        auto last_color_ind = color_map.size() - 1;
+        double delta = (max_value - min_value) / double(last_color_ind);
         double scalar_val = min_value;
-        for (auto&& ind : std::ranges::views::iota(0, color_map.size() - 1)) {
+        for (auto&& ind : std::ranges::views::iota(0, last_color_ind)) {
             auto color = color_map[ind];
             ctf->AddRGBPoint(scalar_val, color.GetRed(), color.GetGreen(), color.GetBlue());
             scalar_val += delta;
         }
-        auto last_color = color_map[color_map.size()];
+        auto last_color = color_map[last_color_ind];
         ctf->AddRGBPoint(max_value, last_color.GetRed(), last_color.GetGreen(), last_color.GetBlue());
 
         //Get interpolated colors

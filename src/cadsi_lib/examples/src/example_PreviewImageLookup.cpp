@@ -53,15 +53,12 @@ int main(int argc, char* argv[]) {
     int m = dicomdir->GetNumberOfStudies();
     int seriesIdx = 0;
     int kmax = 0;
-    for (int i = 0; i < m; i++)
-    {
+    for (int i = 0; i < m; i++) {
         int fj = dicomdir->GetFirstSeriesForStudy(i);
         int lj = dicomdir->GetLastSeriesForStudy(i);
-        for (int j = fj; j <= lj; j++)
-        {
+        for (int j = fj; j <= lj; j++) {
             int k = dicomdir->GetFileNamesForSeries(j)->GetNumberOfValues();
-            if (k > kmax)
-            {
+            if (k > kmax) {
                 kmax = k;
                 seriesIdx = j;
             }
@@ -69,41 +66,32 @@ int main(int argc, char* argv[]) {
     }
 
     // exit if no files found
-    if (kmax == 0)
-    {
-        std::cout<<"No PixelData to display!"<<std::endl;
+    if (kmax == 0) {
+        std::cout << "No PixelData to display!" << std::endl;
         return -1;
     }
 
-    vtkNew<vtkDICOMReader> series_data_reader;
     auto files = dicomdir->GetFileNamesForSeries(seriesIdx);
-    files->Print(std::cout);
-    series_data_reader->SetFileNames(files);
-    series_data_reader->SetMemoryRowOrderToFileNative();
-    series_data_reader->Update();
 
-    vtkAlgorithmOutput* portToDisplay = series_data_reader->GetOutputPort();
-    vtkMatrix4x4* matrix = series_data_reader->GetPatientMatrix();
+    cadsi_lib::dicom::providers::DicomImageDataProvider provider;
 
-    vtkDICOMMetaData* meta = series_data_reader->GetMetaData();
-    vtkNew<vtkDICOMCTRectifier> rect;
-    if (meta->Get(DC::Modality).Matches("CT")) {
-        rect->SetVolumeMatrix(matrix);
-        rect->SetInputConnection(portToDisplay);
-        rect->Update();
-        portToDisplay = rect->GetOutputPort();
-        matrix = rect->GetRectifiedMatrix();
+    auto res = provider.parseDicomFiles(files);
+
+    if (!res.success) {
+        std::cout << "Parse Dicom files error code:" << res.error_code << std::endl;
+        return -1;
     }
 
-    auto image_data = cadsi_lib::dicom::PreviewImage::generatePreviewImage(matrix, portToDisplay);
+    auto image_data =
+        cadsi_lib::dicom::PreviewImage::generatePreviewImage(provider.getPatientMatrix(), provider.getOutputPort());
 
-    auto qimage = cadsi_lib::dicom::PreviewImage::vtkImageDataToQImage(image_data);
+    auto preview = cadsi_lib::dicom::PreviewImage::vtkImageDataToQImage(image_data);
 
     QApplication app{argc, argv};
     QMainWindow window;
     QLabel label;
     QPixmap pixmap;
-    pixmap.convertFromImage(qimage);
+    pixmap.convertFromImage(preview);
     label.setPixmap(pixmap);
     label.resize(label.pixmap().size());
 

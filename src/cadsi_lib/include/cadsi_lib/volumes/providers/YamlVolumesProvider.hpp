@@ -15,7 +15,7 @@ namespace cadsi_lib::volumes::providers {
 	\brief Class for work with volume maps declared in yaml
         */
     class YamlVolumesProvider : public VolumesProvider,
-                                cadsi_lib::yaml::YamlDeserializable {
+                                public cadsi_lib::yaml::YamlDeserializable {
     public:
         /*!
 	    \warning If the parameters with specific modality and tissue not contains in collection, return default init object

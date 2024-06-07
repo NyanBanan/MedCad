@@ -6,6 +6,8 @@
 #include <cadsi_lib/dicom/SqliteDicomDataMapper.hpp>
 #include <cadsi_lib/dicom/providers/FileDataDicomProvider.hpp>
 
+#include <cadsi_lib/dicom/DicomSqlTablesInspector.hpp>
+
 int main(int argc, char* argv[]) {
     //SqliteDicomDataBase provide functions for database connection and structure validation
     cadsi_lib::dicom::SqliteDicomDataBase db;
@@ -16,18 +18,11 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     //Check db structure for our needs
-    auto check_res = db.checkTablesExists();
-    if (!check_res.status.success) {
-        auto status = check_res.status;
-        std::cout << status.error_code << " " << status.error_message << std::endl;
+    cadsi_lib::dicom::DicomSqlTablesInspector insp;
+    auto create_tables_res = insp.checkAndCreateTables(db);
+    if (!create_tables_res.success) {
+        std::cout << create_tables_res.error_code << " " << create_tables_res.error_message << std::endl;
         return -1;
-    }
-    if (!check_res.data) {
-        auto create_tables_res = db.createTables();
-        if (!create_tables_res.success) {
-            std::cout << create_tables_res.error_code << " " << create_tables_res.error_message << std::endl;
-            return -1;
-        }
     }
 
     cadsi_lib::dicom::SqliteDicomDataMapper data_mapper;

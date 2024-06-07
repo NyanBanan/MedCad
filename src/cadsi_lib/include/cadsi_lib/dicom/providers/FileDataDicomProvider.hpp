@@ -6,8 +6,10 @@
 #define CADSI_FILEDATADICOMPROVIDER_HPP
 
 #include <QFileInfo>
+#include <qdir.h>
 #include <ranges>
 #include <string>
+#include <vtkDICOMCTRectifier.h>
 #include <vtkDICOMDirectory.h>
 #include <vtkDICOMFileSorter.h>
 #include <vtkDICOMItem.h>
@@ -22,18 +24,20 @@
 #include "cadsi_lib/OperationStatus.hpp"
 #include "cadsi_lib/Result.hpp"
 #include "cadsi_lib/dicom/DicomPatient.hpp"
+#include "cadsi_lib/dicom/PreviewImage.hpp"
 #include "cadsi_lib/file_data/FileDataErrors.hpp"
 #include "cadsi_lib/volumes/VolumeObject.hpp"
+#include "DicomImageDataProvider.hpp"
 
 namespace cadsi_lib::dicom::providers {
 
     class FileDataDicomProvider : public DicomProvider {
     public:
         Result<QList<DicomPatient>> getAllPatients() override;
-        Result<QList<DicomPatient>> readDir(const QString& dir_path);
+        Result<QList<DicomPatient>> readDir(const QString& dir_path, bool need_deep_search);
 
     private:
-        void createPreviewImage(vtkDICOMReader* reader);
+        int countDepth(const QString& dir_path);
 
         QList<DicomPatient> _patients;
     };
