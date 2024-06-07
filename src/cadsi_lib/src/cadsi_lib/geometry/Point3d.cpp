@@ -6,6 +6,8 @@
 
 namespace cadsi_lib::geometry {
 
+    Point3d::Point3d(double* xyz) : _data(xyz) {}
+
     Point3d::Point3d(double x, double y, double z) : _data(x, y, z) {}
 
     Point3d::Point3d(const vtkVector3d& data) : _data(data) {}

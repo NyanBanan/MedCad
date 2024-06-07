@@ -11,6 +11,7 @@
 namespace cadsi_lib::geometry {
     class Point3d {
     public:
+        explicit Point3d(double* xyz);
         explicit Point3d(double x = 0, double y = 0, double z = 0);
         explicit Point3d(const vtkVector3d& data);
         explicit Point3d(vtkVector3d&& data);

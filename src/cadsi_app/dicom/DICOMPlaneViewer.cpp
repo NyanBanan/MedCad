@@ -37,10 +37,10 @@ void DICOMPlaneViewer::setOrientationFromInt(int orientation) {
     if (orientation < SAGITTAL || orientation > AXIAL) {
         return;
     }
-    setOrientation((Orientations)orientation);
+    setOrientation((Orientation)orientation);
 }
 
-void DICOMPlaneViewer::setOrientation(DICOMPlaneViewer::Orientations new_orientation) {
+void DICOMPlaneViewer::setOrientation(DICOMPlaneViewer::Orientation new_orientation) {
     if (_first_alg->GetInput() != nullptr) {
         if (_orientation != new_orientation) {
             _mapper->SetOrientation(new_orientation);

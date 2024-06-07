@@ -31,7 +31,7 @@
 class DICOMPlaneViewer : public QVTKOpenGLNativeWidget {
     Q_OBJECT
 public:
-    enum Orientations {
+    enum Orientation {
         SAGITTAL = 0,
         CORONAL = 1,
         AXIAL = 2
@@ -40,7 +40,7 @@ public:
     DICOMPlaneViewer(QWidget* parent = nullptr);
 
     void loadImage(vtkAlgorithmOutput* input);
-    void setOrientation(DICOMPlaneViewer::Orientations new_orientation);
+    void setOrientation(DICOMPlaneViewer::Orientation new_orientation);
 signals:
     void slicesNumChanged(int min_slice_ind, int max_slice_ind);
 public slots:
@@ -58,7 +58,7 @@ private slots:
 private:
     vtkImageAlgorithm* _first_alg;
 
-    Orientations _orientation{AXIAL};
+    Orientation _orientation{AXIAL};
     vtkNew<vtkImageSliceMapper> _mapper;
     vtkNew<vtkImageSlice> _slice;
     vtkNew<vtkImageMapToWindowLevelColors> _colorizer;

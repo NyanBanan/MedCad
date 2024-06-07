@@ -81,6 +81,8 @@ add_library(cadsi_lib
         include/cadsi_lib/volumes/VolumeImageTransformations.hpp
         src/cadsi_lib/dicom/providers/DicomImageDataProvider.cpp
         include/cadsi_lib/dicom/providers/DicomImageDataProvider.hpp
+        src/cadsi_lib/volumes/PolyActor.cpp
+        include/cadsi_lib/volumes/PolyActor.hpp
 )
 
 include(${CMAKE_UTILS_FILE})
